@@ -1,4 +1,7 @@
 package com.example.smartchef.dtos.response;
 
-public class FotoResponseDto {
-}
+public record FotoResponseDto(
+        Integer id,
+        String url,
+        Integer recetaId
+) {}

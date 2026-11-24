@@ -1,4 +1,7 @@
 package com.example.smartchef.dtos.response;
 
-public class PasoResponseDto {
-}
+public record PasoResponseDto(
+        Integer id,
+        Integer numero,
+        String descripcion
+) {}

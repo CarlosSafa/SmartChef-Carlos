@@ -1,4 +1,11 @@
 package com.example.smartchef.dtos.response;
 
-public class IngredienteResponseDto {
-}
+import java.math.BigDecimal;
+
+public record IngredienteResponseDto(
+        Integer id,
+        String nombre,
+        Integer unidadMedida,
+        BigDecimal calorias,
+        BigDecimal precio
+) {}

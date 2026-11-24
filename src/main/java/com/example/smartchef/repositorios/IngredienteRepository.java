@@ -11,4 +11,7 @@ public interface IngredienteRepository extends JpaRepository<Ingrediente, Intege
 
     // 6. GET /api/v1/ingredientes?texto=: Catálogo de ingredientes paginado
     Page<Ingrediente> findByNombreContainingIgnoreCase(String texto, Pageable pageable);
+
+    // Evita duplicados en el catálogo común (409 si ya existe)
+    boolean existsByNombreIgnoreCase(String nombre);
 }

@@ -1,4 +1,22 @@
 package com.example.smartchef.dtos.request;
 
-public class IngredienteRequestDtoç {
-}
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
+import java.math.BigDecimal;
+
+public record IngredienteRequestDto(
+        @NotBlank(message = "El nombre del ingrediente es obligatorio")
+        String nombre,
+
+        @NotNull(message = "La unidad de medida es obligatoria")
+        Integer unidadMedida,
+
+        @NotNull(message = "Las calorías son obligatorias")
+        @PositiveOrZero(message = "Las calorías no pueden ser negativas")
+        BigDecimal calorias,
+
+        @NotNull(message = "El precio es obligatorio")
+        @PositiveOrZero(message = "El precio no puede ser negativo")
+        BigDecimal precio
+) {}

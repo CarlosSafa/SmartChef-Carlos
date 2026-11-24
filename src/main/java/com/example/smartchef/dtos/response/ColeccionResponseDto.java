@@ -1,4 +1,10 @@
 package com.example.smartchef.dtos.response;
 
-public class ColeccionResponseDto {
-}
+import java.util.List;
+
+public record ColeccionResponseDto(
+        Integer id,
+        String nombre,
+        Integer usuarioId,
+        List<RecetaDetalleResponseDto> recetas
+) {}
