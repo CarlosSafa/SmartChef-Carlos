@@ -11,7 +11,6 @@ import java.util.List;
 public interface ColeccionMapper {
 
     @Mapping(target = "usuarioId", source = "usuario.id")
-    @Mapping(target = "recetas", ignore = true) // Se pueblan en el servicio
     ColeccionResponseDto aResponseDto(Coleccion coleccion);
 
     List<ColeccionResponseDto> aResponseDtoList(List<Coleccion> colecciones);

@@ -11,6 +11,8 @@ public interface UsuarioMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "rol", ignore = true)
+    @Mapping(target = "ingredientes", ignore = true)
+    @Mapping(target = "preferencias", ignore = true)
     Usuario registroDtoToUsuario(RegistroRequestDto dto);
 
     @Mapping(target = "email", ignore = true)

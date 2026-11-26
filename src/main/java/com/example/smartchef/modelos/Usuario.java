@@ -2,6 +2,8 @@ package com.example.smartchef.modelos;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "usuario", schema = "smartchef")
@@ -25,4 +27,22 @@ public class Usuario {
 
     @Column(name = "rol", nullable = false)
     private Integer rol;
+
+    // N:M con ingrediente (tabla usuario_ingrediente, sin datos propios)
+    @ManyToMany
+    @JoinTable(
+            name = "usuario_ingrediente", schema = "smartchef",
+            joinColumns = @JoinColumn(name = "id_usuario"),
+            inverseJoinColumns = @JoinColumn(name = "id_ingrediente"))
+    @Builder.Default
+    private Set<Ingrediente> ingredientes = new HashSet<>();
+
+    // N:M con preferencia (tabla usuario_preferencia, sin datos propios)
+    @ManyToMany
+    @JoinTable(
+            name = "usuario_preferencia", schema = "smartchef",
+            joinColumns = @JoinColumn(name = "id_usuario"),
+            inverseJoinColumns = @JoinColumn(name = "id_preferencia"))
+    @Builder.Default
+    private Set<Preferencia> preferencias = new HashSet<>();
 }

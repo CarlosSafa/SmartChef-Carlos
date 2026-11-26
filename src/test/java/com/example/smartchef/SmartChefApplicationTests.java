@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Transactional
 class SmartChefApplicationTests {
 
-    @Autowired private ColeccionRecetaRepository coleccionRecetaRepository;
     @Autowired private ColeccionRepository coleccionRepository;
     @Autowired private DespensaRepository despensaRepository;
     @Autowired private FotoRepository fotoRepository;
@@ -30,8 +29,6 @@ class SmartChefApplicationTests {
     @Autowired private PasoRepository pasoRepository;
     @Autowired private PreferenciaRepository preferenciaRepository;
     @Autowired private RecetaRepository recetaRepository;
-    @Autowired private UsuarioIngredienteRepository usuarioIngredienteRepository;
-    @Autowired private UsuarioPreferenciaRepository usuarioPreferenciaRepository;
     @Autowired private UsuarioRecetaRepository usuarioRecetaRepository;
     @Autowired private UsuarioRepository usuarioRepository;
 
@@ -155,12 +152,9 @@ class SmartChefApplicationTests {
 
     // --- VERIFICACIONES DE CONTEO PARA EL RESTO DE REPOSITORIOS ---
 
-    @Test void probarColeccionRecetaRepository() { System.out.println("ColeccionReceta count: " + coleccionRecetaRepository.count()); assertTrue(coleccionRecetaRepository.count() >= 0); }
     @Test void probarFotoRepository() { System.out.println("Foto count: " + fotoRepository.count()); assertTrue(fotoRepository.count() >= 0); }
     @Test void probarNotificacionRepository() { System.out.println("Notificacion count: " + notificacionRepository.count()); assertTrue(notificacionRepository.count() >= 0); }
     @Test void probarPasoRepository() { System.out.println("Paso count: " + pasoRepository.count()); assertTrue(pasoRepository.count() >= 0); }
     @Test void probarPreferenciaRepository() { System.out.println("Preferencia count: " + preferenciaRepository.count()); assertTrue(preferenciaRepository.count() >= 0); }
-    @Test void probarUsuarioIngredienteRepository() { System.out.println("UsuarioIngrediente count: " + usuarioIngredienteRepository.count()); assertTrue(usuarioIngredienteRepository.count() >= 0); }
-    @Test void probarUsuarioPreferenciaRepository() { System.out.println("UsuarioPreferencia count: " + usuarioPreferenciaRepository.count()); assertTrue(usuarioPreferenciaRepository.count() >= 0); }
     @Test void probarUsuarioRepository() { System.out.println("Usuario count: " + usuarioRepository.count()); assertTrue(usuarioRepository.count() >= 0); }
 }
