@@ -26,9 +26,12 @@ public class IngredienteServiceImpl implements IngredienteService {
 
     @Override
     public Page<IngredienteResponseDto> listar(String texto, Pageable pageable) {
-        Page<Ingrediente> pagina = (texto == null || texto.isBlank())
-                ? ingredienteRepository.findAll(pageable)
-                : ingredienteRepository.findByNombreContainingIgnoreCase(texto.trim(), pageable);
+        Page<Ingrediente> pagina;
+        if (texto == null || texto.isBlank()) {
+            pagina = ingredienteRepository.findAll(pageable);
+        } else {
+            pagina = ingredienteRepository.findByNombreContainingIgnoreCase(texto, pageable);
+        }
 
         // map() de Page convierte el contenido sin perder el total ni la página
         return pagina.map(ingredienteMapper::aResponseDto);
@@ -45,13 +48,11 @@ public class IngredienteServiceImpl implements IngredienteService {
     @Transactional
     public IngredienteResponseDto crear(IngredienteRequestDto peticion) {
         // Catálogo común: "el tomate es siempre el mismo tomate", así que no se repiten nombres
-        String nombre = peticion.nombre().trim();
-        if (ingredienteRepository.existsByNombreIgnoreCase(nombre)) {
-            throw new ConflictoException("Ya existe un ingrediente con el nombre " + nombre);
+        if (ingredienteRepository.existsByNombreIgnoreCase(peticion.nombre())) {
+            throw new ConflictoException("Ya existe un ingrediente con el nombre " + peticion.nombre());
         }
 
         Ingrediente ingrediente = ingredienteMapper.aEntidad(peticion);
-        ingrediente.setNombre(nombre);
         Ingrediente guardado = ingredienteRepository.save(ingrediente);
 
         log.info("Ingrediente creado: id={}, nombre={}", guardado.getId(), guardado.getNombre());

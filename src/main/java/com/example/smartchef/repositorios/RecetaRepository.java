@@ -26,8 +26,9 @@ public interface RecetaRepository extends JpaRepository<Receta, Integer> {
                                 @Param("tiempoMax") Integer tiempoMax,
                                 Pageable pageable);
 
-    // 2. GET /api/v1/recetas/{id}: Detalle con ingredientes, pasos y fotos
-    @EntityGraph(attributePaths = {"pasos", "fotos", "ingredientes", "ingredientes.ingrediente"})
+    // 2. GET /api/v1/recetas/{id}: Detalle de la receta cargando sus ingredientes de una vez (Q8, evita N+1)
+    // Solo se carga una lista: si se cargan varias List a la vez Hibernate da MultipleBagFetchException
+    @EntityGraph(attributePaths = {"ingredientes", "ingredientes.ingrediente"})
     Optional<Receta> findById(Integer id);
 
     // 16. GET /api/v1/informes/recetas-populares: Recetas más cocinadas/guardadas

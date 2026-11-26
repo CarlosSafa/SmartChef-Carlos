@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -40,9 +41,12 @@ public class ColeccionServiceImpl implements ColeccionService {
             throw new RecursoNoEncontradoException("No existe el usuario con id " + usuarioId);
         }
         List<Coleccion> colecciones = coleccionRepository.findByUsuarioId(usuarioId);
-        return colecciones.stream()
-                .map(this::aResponseDto)
-                .toList();
+
+        List<ColeccionResponseDto> resultado = new ArrayList<>();
+        for (Coleccion coleccion : colecciones) {
+            resultado.add(aResponseDto(coleccion));
+        }
+        return resultado;
     }
 
     @Override
@@ -50,19 +54,16 @@ public class ColeccionServiceImpl implements ColeccionService {
     public ColeccionResponseDto guardarReceta(Integer usuarioId, String nombre, Integer recetaId) {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("No existe el usuario con id " + usuarioId));
-        if (!recetaRepository.existsById(recetaId)) {
-            throw new RecursoNoEncontradoException("No existe la receta con id " + recetaId);
-        }
-        Receta receta = recetaRepository.getReferenceById(recetaId);
+        Receta receta = recetaRepository.findById(recetaId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("No existe la receta con id " + recetaId));
 
         Coleccion coleccion = coleccionRepository.findByUsuarioIdAndNombreIgnoreCase(usuarioId, nombre)
                 .orElse(null);
 
         if (coleccion == null) {
-            coleccion = Coleccion.builder()
-                    .nombre(nombre)
-                    .usuario(usuario)
-                    .build();
+            coleccion = new Coleccion();
+            coleccion.setNombre(nombre);
+            coleccion.setUsuario(usuario);
             coleccion = coleccionRepository.save(coleccion);
             log.info("Colección '{}' creada para el usuario {}", nombre, usuarioId);
         }
@@ -72,11 +73,10 @@ public class ColeccionServiceImpl implements ColeccionService {
             throw new ConflictoException("La receta " + recetaId + " ya está en la colección " + nombre);
         }
 
-        ColeccionReceta coleccionReceta = ColeccionReceta.builder()
-                .id(id)
-                .coleccion(coleccion)
-                .receta(receta)
-                .build();
+        ColeccionReceta coleccionReceta = new ColeccionReceta();
+        coleccionReceta.setId(id);
+        coleccionReceta.setColeccion(coleccion);
+        coleccionReceta.setReceta(receta);
         coleccionRecetaRepository.save(coleccionReceta);
 
         log.info("Receta {} guardada en la colección '{}' del usuario {}", recetaId, nombre, usuarioId);
@@ -84,10 +84,12 @@ public class ColeccionServiceImpl implements ColeccionService {
     }
 
     private ColeccionResponseDto aResponseDto(Coleccion coleccion) {
-        List<RecetaDetalleResponseDto> recetas = coleccionRecetaRepository.findByColeccionId(coleccion.getId())
-                .stream()
-                .map(cr -> recetaMapper.aDetalleDto(cr.getReceta()))
-                .toList();
+        List<ColeccionReceta> recetasDeLaColeccion = coleccionRecetaRepository.findByColeccionId(coleccion.getId());
+
+        List<RecetaDetalleResponseDto> recetas = new ArrayList<>();
+        for (ColeccionReceta coleccionReceta : recetasDeLaColeccion) {
+            recetas.add(recetaMapper.aDetalleDto(coleccionReceta.getReceta()));
+        }
 
         return new ColeccionResponseDto(
                 coleccion.getId(),

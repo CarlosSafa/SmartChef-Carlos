@@ -56,12 +56,14 @@ public class DespensaServiceImpl implements DespensaService {
             return null;
         }
 
-        Despensa despensa = despensaRepository.findById(id)
-                .orElse(Despensa.builder()
-                        .id(id)
-                        .usuario(usuario)
-                        .ingrediente(ingrediente)
-                        .build());
+        Despensa despensa = despensaRepository.findById(id).orElse(null);
+
+        if (despensa == null) {
+            despensa = new Despensa();
+            despensa.setId(id);
+            despensa.setUsuario(usuario);
+            despensa.setIngrediente(ingrediente);
+        }
 
         despensa.setCantidad(peticion.cantidad());
         despensa.setCaducidad(peticion.caducidad());
