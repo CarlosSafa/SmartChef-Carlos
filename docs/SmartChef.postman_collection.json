@@ -1,0 +1,920 @@
+{
+  "info": {
+    "name": "SmartChef API",
+    "description": "Todas las peticiones de los endpoints implementados, con sus casos de error. Cambia las variables baseUrl y usuarioId si hace falta.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api/v1"
+    },
+    {
+      "key": "usuarioId",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 · Catálogo de recetas (GET /recetas)",
+      "item": [
+        {
+          "name": "1 · Todas (paginado)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "200. Q6 paginación + Q7 Specification",
+            "url": {
+              "raw": "{{baseUrl}}/recetas?page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "recetas"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "1 · Filtro por nombre",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "200",
+            "url": {
+              "raw": "{{baseUrl}}/recetas?nombre=tort",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "recetas"
+              ],
+              "query": [
+                {
+                  "key": "nombre",
+                  "value": "tort"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "1 · Filtros combinados",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "200",
+            "url": {
+              "raw": "{{baseUrl}}/recetas?dificultad=1&tiempoMax=30&sort=tiempo,asc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "recetas"
+              ],
+              "query": [
+                {
+                  "key": "dificultad",
+                  "value": "1"
+                },
+                {
+                  "key": "tiempoMax",
+                  "value": "30"
+                },
+                {
+                  "key": "sort",
+                  "value": "tiempo,asc"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 · Detalle de receta (GET /recetas/{id})",
+      "item": [
+        {
+          "name": "2 · Detalle con coste y calorías",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "200",
+            "url": {
+              "raw": "{{baseUrl}}/recetas/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "recetas",
+                "1"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "2 · ERROR receta inexistente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "404",
+            "url": {
+              "raw": "{{baseUrl}}/recetas/9999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "recetas",
+                "9999"
+              ],
+              "query": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 · Alta de receta (POST /recetas)",
+      "item": [
+        {
+          "name": "3 · Alta correcta",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "201 + cabecera Location",
+            "url": {
+              "raw": "{{baseUrl}}/recetas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "recetas"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Tortilla de patatas\",\n  \"descripcion\": \"La de toda la vida\",\n  \"dificultad\": 1,\n  \"tiempo\": 25,\n  \"raciones\": 4,\n  \"ingredientes\": [\n    {\n      \"ingredienteId\": 1,\n      \"cantidad\": 6\n    },\n    {\n      \"ingredienteId\": 2,\n      \"cantidad\": 500\n    }\n  ],\n  \"pasos\": [\n    {\n      \"numero\": 1,\n      \"descripcion\": \"Pelar y cortar las patatas\"\n    },\n    {\n      \"numero\": 2,\n      \"descripcion\": \"Freír y cuajar con el huevo\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "3 · ERROR pasos con hueco (1, 3)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "422 RN-01",
+            "url": {
+              "raw": "{{baseUrl}}/recetas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "recetas"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Tortilla de patatas\",\n  \"descripcion\": \"La de toda la vida\",\n  \"dificultad\": 1,\n  \"tiempo\": 25,\n  \"raciones\": 4,\n  \"ingredientes\": [\n    {\n      \"ingredienteId\": 1,\n      \"cantidad\": 6\n    },\n    {\n      \"ingredienteId\": 2,\n      \"cantidad\": 500\n    }\n  ],\n  \"pasos\": [\n    {\n      \"numero\": 1,\n      \"descripcion\": \"Pelar y cortar las patatas\"\n    },\n    {\n      \"numero\": 3,\n      \"descripcion\": \"Freír y cuajar con el huevo\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "3 · ERROR ingrediente repetido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "422",
+            "url": {
+              "raw": "{{baseUrl}}/recetas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "recetas"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Tortilla de patatas\",\n  \"descripcion\": \"La de toda la vida\",\n  \"dificultad\": 1,\n  \"tiempo\": 25,\n  \"raciones\": 4,\n  \"ingredientes\": [\n    {\n      \"ingredienteId\": 1,\n      \"cantidad\": 6\n    },\n    {\n      \"ingredienteId\": 1,\n      \"cantidad\": 500\n    }\n  ],\n  \"pasos\": [\n    {\n      \"numero\": 1,\n      \"descripcion\": \"Pelar y cortar las patatas\"\n    },\n    {\n      \"numero\": 2,\n      \"descripcion\": \"Freír y cuajar con el huevo\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "3 · ERROR ingrediente inexistente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "404 y no se guarda nada (@Transactional)",
+            "url": {
+              "raw": "{{baseUrl}}/recetas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "recetas"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Tortilla de patatas\",\n  \"descripcion\": \"La de toda la vida\",\n  \"dificultad\": 1,\n  \"tiempo\": 25,\n  \"raciones\": 4,\n  \"ingredientes\": [\n    {\n      \"ingredienteId\": 1,\n      \"cantidad\": 6\n    },\n    {\n      \"ingredienteId\": 9999,\n      \"cantidad\": 500\n    }\n  ],\n  \"pasos\": [\n    {\n      \"numero\": 1,\n      \"descripcion\": \"Pelar y cortar las patatas\"\n    },\n    {\n      \"numero\": 2,\n      \"descripcion\": \"Freír y cuajar con el huevo\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "3 · ERROR 20 raciones",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "400 validación del DTO",
+            "url": {
+              "raw": "{{baseUrl}}/recetas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "recetas"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Tortilla de patatas\",\n  \"descripcion\": \"La de toda la vida\",\n  \"dificultad\": 1,\n  \"tiempo\": 25,\n  \"raciones\": 20,\n  \"ingredientes\": [\n    {\n      \"ingredienteId\": 1,\n      \"cantidad\": 6\n    },\n    {\n      \"ingredienteId\": 2,\n      \"cantidad\": 500\n    }\n  ],\n  \"pasos\": [\n    {\n      \"numero\": 1,\n      \"descripcion\": \"Pelar y cortar las patatas\"\n    },\n    {\n      \"numero\": 2,\n      \"descripcion\": \"Freír y cuajar con el huevo\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 · Ingredientes (/ingredientes)",
+      "item": [
+        {
+          "name": "6 · Catálogo paginado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "200",
+            "url": {
+              "raw": "{{baseUrl}}/ingredientes?page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ingredientes"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "6 · Buscar por texto",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "200",
+            "url": {
+              "raw": "{{baseUrl}}/ingredientes?texto=tom",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ingredientes"
+              ],
+              "query": [
+                {
+                  "key": "texto",
+                  "value": "tom"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Extra · Ingrediente por id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "200",
+            "url": {
+              "raw": "{{baseUrl}}/ingredientes/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ingredientes",
+                "1"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Extra · Alta de ingrediente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "201 + Location",
+            "url": {
+              "raw": "{{baseUrl}}/ingredientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ingredientes"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Calabacín\",\n  \"unidadMedida\": 1,\n  \"calorias\": 0.17,\n  \"precio\": 0.002\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Extra · ERROR ingrediente duplicado",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "409 (lanzar después del alta)",
+            "url": {
+              "raw": "{{baseUrl}}/ingredientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ingredientes"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Calabacín\",\n  \"unidadMedida\": 1,\n  \"calorias\": 0.17,\n  \"precio\": 0.002\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Extra · ERROR precio negativo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "400",
+            "url": {
+              "raw": "{{baseUrl}}/ingredientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ingredientes"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Error\",\n  \"unidadMedida\": 1,\n  \"calorias\": 1,\n  \"precio\": -1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "08-09 · Despensa (/despensa)",
+      "item": [
+        {
+          "name": "8 · Mi despensa",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "200, la que caduca antes primero",
+            "url": {
+              "raw": "{{baseUrl}}/despensa?usuarioId={{usuarioId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "despensa"
+              ],
+              "query": [
+                {
+                  "key": "usuarioId",
+                  "value": "{{usuarioId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "9 · Añadir o actualizar",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "200",
+            "url": {
+              "raw": "{{baseUrl}}/despensa/1?usuarioId={{usuarioId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "despensa",
+                "1"
+              ],
+              "query": [
+                {
+                  "key": "usuarioId",
+                  "value": "{{usuarioId}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cantidad\": 500,\n  \"caducidad\": \"2026-12-05\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "9 · Cantidad 0 lo elimina",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "204",
+            "url": {
+              "raw": "{{baseUrl}}/despensa/1?usuarioId={{usuarioId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "despensa",
+                "1"
+              ],
+              "query": [
+                {
+                  "key": "usuarioId",
+                  "value": "{{usuarioId}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cantidad\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "9 · ERROR cantidad negativa",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "400",
+            "url": {
+              "raw": "{{baseUrl}}/despensa/1?usuarioId={{usuarioId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "despensa",
+                "1"
+              ],
+              "query": [
+                {
+                  "key": "usuarioId",
+                  "value": "{{usuarioId}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cantidad\": -5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "9 · ERROR ingrediente inexistente",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "404",
+            "url": {
+              "raw": "{{baseUrl}}/despensa/9999?usuarioId={{usuarioId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "despensa",
+                "9999"
+              ],
+              "query": [
+                {
+                  "key": "usuarioId",
+                  "value": "{{usuarioId}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cantidad\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "12-13 · Colecciones (/colecciones)",
+      "item": [
+        {
+          "name": "12 · Mis colecciones",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "200",
+            "url": {
+              "raw": "{{baseUrl}}/colecciones?usuarioId={{usuarioId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "colecciones"
+              ],
+              "query": [
+                {
+                  "key": "usuarioId",
+                  "value": "{{usuarioId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "13 · Guardar receta en colección",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "description": "200 (crea la colección si no existe)",
+            "url": {
+              "raw": "{{baseUrl}}/colecciones/Favoritas/recetas/1?usuarioId={{usuarioId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "colecciones",
+                "Favoritas",
+                "recetas",
+                "1"
+              ],
+              "query": [
+                {
+                  "key": "usuarioId",
+                  "value": "{{usuarioId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "13 · ERROR receta repetida",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "description": "409 RN-08 (lanzar dos veces)",
+            "url": {
+              "raw": "{{baseUrl}}/colecciones/Favoritas/recetas/1?usuarioId={{usuarioId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "colecciones",
+                "Favoritas",
+                "recetas",
+                "1"
+              ],
+              "query": [
+                {
+                  "key": "usuarioId",
+                  "value": "{{usuarioId}}"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "14 · Registros (POST /registros)",
+      "item": [
+        {
+          "name": "14 · Registrar cena",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "201",
+            "url": {
+              "raw": "{{baseUrl}}/registros?usuarioId={{usuarioId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registros"
+              ],
+              "query": [
+                {
+                  "key": "usuarioId",
+                  "value": "{{usuarioId}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recetaId\": 1,\n  \"tipo\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "14 · ERROR cena duplicada hoy",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "409 RN-07 (lanzar dos veces)",
+            "url": {
+              "raw": "{{baseUrl}}/registros?usuarioId={{usuarioId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registros"
+              ],
+              "query": [
+                {
+                  "key": "usuarioId",
+                  "value": "{{usuarioId}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recetaId\": 1,\n  \"tipo\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "14 · ERROR momento no válido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "400",
+            "url": {
+              "raw": "{{baseUrl}}/registros?usuarioId={{usuarioId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registros"
+              ],
+              "query": [
+                {
+                  "key": "usuarioId",
+                  "value": "{{usuarioId}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recetaId\": 1,\n  \"tipo\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "16 · Informe (GET /informes/recetas-populares)",
+      "item": [
+        {
+          "name": "16 · Recetas populares del mes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "200, DTO RecetaPopularDto",
+            "url": {
+              "raw": "{{baseUrl}}/informes/recetas-populares?desde=2026-11-01&hasta=2026-11-30",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "informes",
+                "recetas-populares"
+              ],
+              "query": [
+                {
+                  "key": "desde",
+                  "value": "2026-11-01"
+                },
+                {
+                  "key": "hasta",
+                  "value": "2026-11-30"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "16 · ERROR fechas al revés",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "422",
+            "url": {
+              "raw": "{{baseUrl}}/informes/recetas-populares?desde=2026-11-30&hasta=2026-11-01",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "informes",
+                "recetas-populares"
+              ],
+              "query": [
+                {
+                  "key": "desde",
+                  "value": "2026-11-30"
+                },
+                {
+                  "key": "hasta",
+                  "value": "2026-11-01"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
