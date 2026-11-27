@@ -180,6 +180,45 @@ class SmartChefApplicationTests {
     }
 
     @Test
+    @DisplayName("Endpoint 15 · GET /registros/semana · consulta nativa con DATE_TRUNC (Q3) y proyección por interfaz (Q5)")
+    void endpoint15_semanaConCalorias() {
+        Usuario usuario = crearUsuario("Rosa", Rol.USUARIO);
+        Usuario chef = crearUsuario("ChefRosa", Rol.CHEF);
+        Ingrediente arroz = crearIngrediente("Arroz de prueba"); // 1 caloría por gramo
+
+        // Receta de 4 raciones con 400 g de arroz: 400 calorías en total, 100 por ración
+        Receta receta = Receta.builder()
+                .nombre("Arroz blanco de prueba").dificultad(Dificultad.FACIL)
+                .tiempo(20).raciones(4).autor(chef)
+                .build();
+        receta.getIngredientes().add(RecetaIngrediente.builder()
+                .receta(receta).ingrediente(arroz).cantidad(new BigDecimal("400"))
+                .build());
+        recetaRepository.save(receta);
+
+        // Hoy: comida y cena con la receta (100 + 100) y un desayuno libre sin receta (0)
+        registrar(usuario, receta, Momento.COMIDA);
+        registrar(usuario, receta, Momento.CENA);
+        registroComidaRepository.save(RegistroComida.builder()
+                .usuario(usuario).descripcion("Café con tostada").fecha(LocalDate.now()).momento(Momento.DESAYUNO)
+                .build());
+        // Hace 7 días (la semana anterior): no debe contar
+        registroComidaRepository.save(RegistroComida.builder()
+                .usuario(usuario).receta(receta).fecha(LocalDate.now().minusDays(7)).momento(Momento.CENA)
+                .build());
+        registroComidaRepository.flush();
+
+        List<CaloriasDiaProyeccion> filas = registroComidaRepository.findCaloriasPorDiaDeLaSemana(usuario.getId(), LocalDate.now());
+
+        System.out.println("Endpoint 15 -> calorías por día:");
+        filas.forEach(f -> System.out.println("  día " + f.getDia() + ": " + f.getCalorias()));
+
+        assertEquals(1, filas.size(), "Solo hoy: lo de hace 7 días es de otra semana");
+        assertEquals(LocalDate.now().getDayOfWeek().getValue(), filas.get(0).getDia());
+        assertEquals(0, new BigDecimal("200").compareTo(filas.get(0).getCalorias()), "100 + 100 + 0 (la comida libre no suma)");
+    }
+
+    @Test
     @DisplayName("Endpoint 16 · GET /informes/recetas-populares · SELECT new RecetaPopularDto (Q2, Q5)")
     void endpoint16_informeRecetasPopulares() {
         Usuario marta = crearUsuario("Marta", Rol.USUARIO);

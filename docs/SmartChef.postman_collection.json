@@ -846,7 +846,7 @@
           }
         },
         {
-          "name": "14 · ERROR cena duplicada hoy",
+          "name": "14 · ERROR la misma cena otra vez (lanzar después de \"Registrar cena\")",
           "request": {
             "method": "POST",
             "header": [
@@ -855,7 +855,7 @@
                 "value": "application/json"
               }
             ],
-            "description": "409 RN-07 (lanzar dos veces)",
+            "description": "409 RN-07",
             "url": {
               "raw": "{{baseUrl}}/registros?usuarioId={{usuarioId}}",
               "host": [

@@ -2,11 +2,15 @@ package com.example.smartchef.controladores;
 
 import com.example.smartchef.dtos.request.RegistroComidaRequestDto;
 import com.example.smartchef.dtos.response.RegistroComidaResponseDto;
+import com.example.smartchef.dtos.response.SemanaResponseDto;
 import com.example.smartchef.servicios.RegistroService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/v1/registros")
@@ -22,5 +26,15 @@ public class RegistroController {
     public RegistroComidaResponseDto registrar(@RequestParam Integer usuarioId,
                                               @Valid @RequestBody RegistroComidaRequestDto peticion) {
         return registroService.registrar(usuarioId, peticion);
+    }
+
+    // 15. GET /api/v1/registros/semana?usuarioId=5&fecha=2026-11-27  (sin fecha: la semana de hoy)
+    @GetMapping("/semana")
+    public SemanaResponseDto semana(@RequestParam Integer usuarioId,
+                                    @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+        if (fecha == null) {
+            fecha = LocalDate.now();
+        }
+        return registroService.semana(usuarioId, fecha);
     }
 }
