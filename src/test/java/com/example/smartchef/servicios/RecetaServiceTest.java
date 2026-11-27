@@ -6,8 +6,10 @@ import com.example.smartchef.dtos.request.RecetaIngredienteRequestDto;
 import com.example.smartchef.excepciones.ReglaNegocioException;
 import com.example.smartchef.mappers.RecetaIngredienteMapper;
 import com.example.smartchef.mappers.RecetaMapper;
+import com.example.smartchef.modelos.Dificultad;
 import com.example.smartchef.repositorios.IngredienteRepository;
 import com.example.smartchef.repositorios.RecetaRepository;
+import com.example.smartchef.repositorios.UsuarioRepository;
 import com.example.smartchef.servicios.impl.RecetaServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +32,7 @@ class RecetaServiceTest {
 
     @Mock private RecetaRepository recetaRepository;
     @Mock private IngredienteRepository ingredienteRepository;
+    @Mock private UsuarioRepository usuarioRepository;
     @Mock private RecetaMapper recetaMapper;
     @Mock private RecetaIngredienteMapper recetaIngredienteMapper;
 
@@ -39,11 +42,11 @@ class RecetaServiceTest {
     @DisplayName("RN-01 · No crea la receta si los pasos tienen huecos (1, 3) y no guarda nada")
     void noCreaSiLosPasosTienenHuecos() {
         RecetaCreacionDto peticion = new RecetaCreacionDto(
-                "Tortilla", "Prueba", 1, 25, 4,
+                "Tortilla", "Prueba", Dificultad.FACIL, 25, 4,
                 List.of(new RecetaIngredienteRequestDto(1, new BigDecimal("6"))),
                 List.of(new PasoRequestDto(1, "Batir"), new PasoRequestDto(3, "Cuajar")));
 
-        assertThatThrownBy(() -> recetaService.crear(peticion))
+        assertThatThrownBy(() -> recetaService.crear(2, peticion))
                 .isInstanceOf(ReglaNegocioException.class)
                 .hasMessageContaining("sin huecos");
 
@@ -54,12 +57,12 @@ class RecetaServiceTest {
     @DisplayName("No crea la receta si un ingrediente está repetido y no guarda nada")
     void noCreaSiHayIngredientesRepetidos() {
         RecetaCreacionDto peticion = new RecetaCreacionDto(
-                "Tortilla", "Prueba", 1, 25, 4,
+                "Tortilla", "Prueba", Dificultad.FACIL, 25, 4,
                 List.of(new RecetaIngredienteRequestDto(1, new BigDecimal("6")),
                         new RecetaIngredienteRequestDto(1, new BigDecimal("2"))),
                 List.of(new PasoRequestDto(1, "Batir")));
 
-        assertThatThrownBy(() -> recetaService.crear(peticion))
+        assertThatThrownBy(() -> recetaService.crear(2, peticion))
                 .isInstanceOf(ReglaNegocioException.class)
                 .hasMessageContaining("repetido");
 

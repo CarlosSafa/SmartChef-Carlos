@@ -16,6 +16,10 @@ public interface RecetaMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "fotos", ignore = true)
     @Mapping(target = "ingredientes", ignore = true)
+    @Mapping(target = "autor", ignore = true)
+    @Mapping(target = "activa", ignore = true)
+    @Mapping(target = "creadoEn", ignore = true)
+    @Mapping(target = "actualizadoEn", ignore = true)
     Receta aEntidad(RecetaCreacionDto dto);
 
     // Versión corta (la usa ColeccionMapper para listar las recetas de una colección)

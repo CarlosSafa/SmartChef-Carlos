@@ -2,11 +2,13 @@ package com.example.smartchef.modelos;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "usuario", schema = "smartchef")
+@Table(name = "usuarios", schema = "smartchef")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,33 +18,38 @@ public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Integer id;
 
-    @Column(name = "nombre", nullable = false, length = 100)
+    @Column(nullable = false, length = 100)
     private String nombre;
 
-    @Column(name = "contrasena", nullable = false, length = 255)
+    @Column(nullable = false, unique = true, length = 150)
+    private String email;
+
+    @Column(nullable = false)
     private String contrasena;
 
-    @Column(name = "rol", nullable = false)
-    private Integer rol;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
+    private Rol rol;
 
-    // N:M con ingrediente (tabla usuario_ingrediente, sin datos propios)
+    @Column(name = "creado_en", nullable = false, updatable = false)
+    private LocalDateTime creadoEn;
+
+    // N:M con preferencia (tabla usuarios_preferencias, sin datos propios): RN-03
     @ManyToMany
     @JoinTable(
-            name = "usuario_ingrediente", schema = "smartchef",
-            joinColumns = @JoinColumn(name = "id_usuario"),
-            inverseJoinColumns = @JoinColumn(name = "id_ingrediente"))
-    @Builder.Default
-    private Set<Ingrediente> ingredientes = new HashSet<>();
-
-    // N:M con preferencia (tabla usuario_preferencia, sin datos propios)
-    @ManyToMany
-    @JoinTable(
-            name = "usuario_preferencia", schema = "smartchef",
+            name = "usuarios_preferencias", schema = "smartchef",
             joinColumns = @JoinColumn(name = "id_usuario"),
             inverseJoinColumns = @JoinColumn(name = "id_preferencia"))
     @Builder.Default
     private Set<Preferencia> preferencias = new HashSet<>();
+
+    @PrePersist
+    void alCrear() {
+        creadoEn = LocalDateTime.now();
+        if (rol == null) {
+            rol = Rol.USUARIO;
+        }
+    }
 }

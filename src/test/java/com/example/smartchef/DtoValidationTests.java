@@ -3,6 +3,11 @@ package com.example.smartchef;
 import com.example.smartchef.dtos.request.IngredienteRequestDto;
 import com.example.smartchef.dtos.request.RecetaCreacionDto;
 import com.example.smartchef.dtos.request.RegistroRequestDto;
+import com.example.smartchef.dtos.request.RegistroComidaRequestDto;
+import com.example.smartchef.modelos.Categoria;
+import com.example.smartchef.modelos.Dificultad;
+import com.example.smartchef.modelos.Momento;
+import com.example.smartchef.modelos.UnidadMedida;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -12,6 +17,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
@@ -50,7 +56,8 @@ class DtoValidationTests {
     void testIngredienteRequestDto_PrecioNegativo() {
         IngredienteRequestDto dto = new IngredienteRequestDto(
                 "Patata",
-                2,
+                UnidadMedida.GRAMOS,
+                Categoria.VERDULERIA,
                 new BigDecimal("-10.00"), // Calorías negativas
                 new BigDecimal("-0.50")   // Precio negativo
         );
@@ -65,7 +72,7 @@ class DtoValidationTests {
         RecetaCreacionDto dto = new RecetaCreacionDto(
                 "Paella",
                 "Receta típica",
-                2,
+                Dificultad.MEDIA,
                 45,
                 4,
                 List.of(), // Lista de ingredientes vacía
@@ -76,5 +83,15 @@ class DtoValidationTests {
         assertFalse(violations.isEmpty());
         assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("ingredientes")));
         assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("pasos")));
+    }
+
+    @Test
+    @DisplayName("RegistroComidaRequestDto con fecha futura debe fallar (RN-07)")
+    void testRegistroComida_FechaFutura() {
+        RegistroComidaRequestDto dto = new RegistroComidaRequestDto(1, null, LocalDate.now().plusDays(1), Momento.CENA);
+
+        Set<ConstraintViolation<RegistroComidaRequestDto>> violations = validator.validate(dto);
+        assertEquals(1, violations.size());
+        assertEquals("fecha", violations.iterator().next().getPropertyPath().toString());
     }
 }

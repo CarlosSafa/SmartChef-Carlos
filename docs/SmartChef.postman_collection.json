@@ -11,7 +11,11 @@
     },
     {
       "key": "usuarioId",
-      "value": "1"
+      "value": "5"
+    },
+    {
+      "key": "chefId",
+      "value": "2"
     }
   ],
   "item": [
@@ -75,7 +79,7 @@
             "header": [],
             "description": "200",
             "url": {
-              "raw": "{{baseUrl}}/recetas?dificultad=1&tiempoMax=30&sort=tiempo,asc",
+              "raw": "{{baseUrl}}/recetas?dificultad=FACIL&tiempoMax=30&sort=tiempo,asc",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -85,7 +89,7 @@
               "query": [
                 {
                   "key": "dificultad",
-                  "value": "1"
+                  "value": "FACIL"
                 },
                 {
                   "key": "tiempoMax",
@@ -159,18 +163,23 @@
             ],
             "description": "201 + cabecera Location",
             "url": {
-              "raw": "{{baseUrl}}/recetas",
+              "raw": "{{baseUrl}}/recetas?usuarioId={{chefId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "recetas"
               ],
-              "query": []
+              "query": [
+                {
+                  "key": "usuarioId",
+                  "value": "{{chefId}}"
+                }
+              ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Tortilla de patatas\",\n  \"descripcion\": \"La de toda la vida\",\n  \"dificultad\": 1,\n  \"tiempo\": 25,\n  \"raciones\": 4,\n  \"ingredientes\": [\n    {\n      \"ingredienteId\": 1,\n      \"cantidad\": 6\n    },\n    {\n      \"ingredienteId\": 2,\n      \"cantidad\": 500\n    }\n  ],\n  \"pasos\": [\n    {\n      \"numero\": 1,\n      \"descripcion\": \"Pelar y cortar las patatas\"\n    },\n    {\n      \"numero\": 2,\n      \"descripcion\": \"Freír y cuajar con el huevo\"\n    }\n  ]\n}",
+              "raw": "{\n  \"nombre\": \"Tortilla de prueba\",\n  \"descripcion\": \"La de toda la vida\",\n  \"dificultad\": \"MEDIA\",\n  \"tiempo\": 25,\n  \"raciones\": 4,\n  \"ingredientes\": [\n    {\n      \"ingredienteId\": 1,\n      \"cantidad\": 6\n    },\n    {\n      \"ingredienteId\": 2,\n      \"cantidad\": 500\n    }\n  ],\n  \"pasos\": [\n    {\n      \"numero\": 1,\n      \"descripcion\": \"Pelar y cortar las patatas\"\n    },\n    {\n      \"numero\": 2,\n      \"descripcion\": \"Freír y cuajar con el huevo\"\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -191,18 +200,23 @@
             ],
             "description": "422 RN-01",
             "url": {
-              "raw": "{{baseUrl}}/recetas",
+              "raw": "{{baseUrl}}/recetas?usuarioId={{chefId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "recetas"
               ],
-              "query": []
+              "query": [
+                {
+                  "key": "usuarioId",
+                  "value": "{{chefId}}"
+                }
+              ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Tortilla de patatas\",\n  \"descripcion\": \"La de toda la vida\",\n  \"dificultad\": 1,\n  \"tiempo\": 25,\n  \"raciones\": 4,\n  \"ingredientes\": [\n    {\n      \"ingredienteId\": 1,\n      \"cantidad\": 6\n    },\n    {\n      \"ingredienteId\": 2,\n      \"cantidad\": 500\n    }\n  ],\n  \"pasos\": [\n    {\n      \"numero\": 1,\n      \"descripcion\": \"Pelar y cortar las patatas\"\n    },\n    {\n      \"numero\": 3,\n      \"descripcion\": \"Freír y cuajar con el huevo\"\n    }\n  ]\n}",
+              "raw": "{\n  \"nombre\": \"Tortilla de prueba\",\n  \"descripcion\": \"La de toda la vida\",\n  \"dificultad\": \"MEDIA\",\n  \"tiempo\": 25,\n  \"raciones\": 4,\n  \"ingredientes\": [\n    {\n      \"ingredienteId\": 1,\n      \"cantidad\": 6\n    },\n    {\n      \"ingredienteId\": 2,\n      \"cantidad\": 500\n    }\n  ],\n  \"pasos\": [\n    {\n      \"numero\": 1,\n      \"descripcion\": \"Pelar y cortar las patatas\"\n    },\n    {\n      \"numero\": 3,\n      \"descripcion\": \"Freír y cuajar con el huevo\"\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -223,18 +237,23 @@
             ],
             "description": "422",
             "url": {
-              "raw": "{{baseUrl}}/recetas",
+              "raw": "{{baseUrl}}/recetas?usuarioId={{chefId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "recetas"
               ],
-              "query": []
+              "query": [
+                {
+                  "key": "usuarioId",
+                  "value": "{{chefId}}"
+                }
+              ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Tortilla de patatas\",\n  \"descripcion\": \"La de toda la vida\",\n  \"dificultad\": 1,\n  \"tiempo\": 25,\n  \"raciones\": 4,\n  \"ingredientes\": [\n    {\n      \"ingredienteId\": 1,\n      \"cantidad\": 6\n    },\n    {\n      \"ingredienteId\": 1,\n      \"cantidad\": 500\n    }\n  ],\n  \"pasos\": [\n    {\n      \"numero\": 1,\n      \"descripcion\": \"Pelar y cortar las patatas\"\n    },\n    {\n      \"numero\": 2,\n      \"descripcion\": \"Freír y cuajar con el huevo\"\n    }\n  ]\n}",
+              "raw": "{\n  \"nombre\": \"Tortilla de prueba\",\n  \"descripcion\": \"La de toda la vida\",\n  \"dificultad\": \"MEDIA\",\n  \"tiempo\": 25,\n  \"raciones\": 4,\n  \"ingredientes\": [\n    {\n      \"ingredienteId\": 1,\n      \"cantidad\": 6\n    },\n    {\n      \"ingredienteId\": 1,\n      \"cantidad\": 500\n    }\n  ],\n  \"pasos\": [\n    {\n      \"numero\": 1,\n      \"descripcion\": \"Pelar y cortar las patatas\"\n    },\n    {\n      \"numero\": 2,\n      \"descripcion\": \"Freír y cuajar con el huevo\"\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -255,18 +274,23 @@
             ],
             "description": "404 y no se guarda nada (@Transactional)",
             "url": {
-              "raw": "{{baseUrl}}/recetas",
+              "raw": "{{baseUrl}}/recetas?usuarioId={{chefId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "recetas"
               ],
-              "query": []
+              "query": [
+                {
+                  "key": "usuarioId",
+                  "value": "{{chefId}}"
+                }
+              ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Tortilla de patatas\",\n  \"descripcion\": \"La de toda la vida\",\n  \"dificultad\": 1,\n  \"tiempo\": 25,\n  \"raciones\": 4,\n  \"ingredientes\": [\n    {\n      \"ingredienteId\": 1,\n      \"cantidad\": 6\n    },\n    {\n      \"ingredienteId\": 9999,\n      \"cantidad\": 500\n    }\n  ],\n  \"pasos\": [\n    {\n      \"numero\": 1,\n      \"descripcion\": \"Pelar y cortar las patatas\"\n    },\n    {\n      \"numero\": 2,\n      \"descripcion\": \"Freír y cuajar con el huevo\"\n    }\n  ]\n}",
+              "raw": "{\n  \"nombre\": \"Tortilla de prueba\",\n  \"descripcion\": \"La de toda la vida\",\n  \"dificultad\": \"MEDIA\",\n  \"tiempo\": 25,\n  \"raciones\": 4,\n  \"ingredientes\": [\n    {\n      \"ingredienteId\": 1,\n      \"cantidad\": 6\n    },\n    {\n      \"ingredienteId\": 9999,\n      \"cantidad\": 500\n    }\n  ],\n  \"pasos\": [\n    {\n      \"numero\": 1,\n      \"descripcion\": \"Pelar y cortar las patatas\"\n    },\n    {\n      \"numero\": 2,\n      \"descripcion\": \"Freír y cuajar con el huevo\"\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -287,18 +311,23 @@
             ],
             "description": "400 validación del DTO",
             "url": {
-              "raw": "{{baseUrl}}/recetas",
+              "raw": "{{baseUrl}}/recetas?usuarioId={{chefId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "recetas"
               ],
-              "query": []
+              "query": [
+                {
+                  "key": "usuarioId",
+                  "value": "{{chefId}}"
+                }
+              ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Tortilla de patatas\",\n  \"descripcion\": \"La de toda la vida\",\n  \"dificultad\": 1,\n  \"tiempo\": 25,\n  \"raciones\": 20,\n  \"ingredientes\": [\n    {\n      \"ingredienteId\": 1,\n      \"cantidad\": 6\n    },\n    {\n      \"ingredienteId\": 2,\n      \"cantidad\": 500\n    }\n  ],\n  \"pasos\": [\n    {\n      \"numero\": 1,\n      \"descripcion\": \"Pelar y cortar las patatas\"\n    },\n    {\n      \"numero\": 2,\n      \"descripcion\": \"Freír y cuajar con el huevo\"\n    }\n  ]\n}",
+              "raw": "{\n  \"nombre\": \"Tortilla de prueba\",\n  \"descripcion\": \"La de toda la vida\",\n  \"dificultad\": \"MEDIA\",\n  \"tiempo\": 25,\n  \"raciones\": 20,\n  \"ingredientes\": [\n    {\n      \"ingredienteId\": 1,\n      \"cantidad\": 6\n    },\n    {\n      \"ingredienteId\": 2,\n      \"cantidad\": 500\n    }\n  ],\n  \"pasos\": [\n    {\n      \"numero\": 1,\n      \"descripcion\": \"Pelar y cortar las patatas\"\n    },\n    {\n      \"numero\": 2,\n      \"descripcion\": \"Freír y cuajar con el huevo\"\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -404,7 +433,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Calabacín\",\n  \"unidadMedida\": 1,\n  \"calorias\": 0.17,\n  \"precio\": 0.002\n}",
+              "raw": "{\n  \"nombre\": \"Berenjena\",\n  \"unidadMedida\": \"GRAMOS\",\n  \"categoria\": \"VERDULERIA\",\n  \"calorias\": 0.25,\n  \"precio\": 0.003\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -436,7 +465,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Calabacín\",\n  \"unidadMedida\": 1,\n  \"calorias\": 0.17,\n  \"precio\": 0.002\n}",
+              "raw": "{\n  \"nombre\": \"Berenjena\",\n  \"unidadMedida\": \"GRAMOS\",\n  \"categoria\": \"VERDULERIA\",\n  \"calorias\": 0.25,\n  \"precio\": 0.003\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -468,7 +497,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Error\",\n  \"unidadMedida\": 1,\n  \"calorias\": 1,\n  \"precio\": -1\n}",
+              "raw": "{\n  \"nombre\": \"Error\",\n  \"unidadMedida\": \"GRAMOS\",\n  \"categoria\": \"VERDULERIA\",\n  \"calorias\": 1,\n  \"precio\": -1\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -515,15 +544,15 @@
                 "value": "application/json"
               }
             ],
-            "description": "200",
+            "description": "200 (pimiento: lo añade a la despensa de Julián)",
             "url": {
-              "raw": "{{baseUrl}}/despensa/1?usuarioId={{usuarioId}}",
+              "raw": "{{baseUrl}}/despensa/13?usuarioId={{usuarioId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "despensa",
-                "1"
+                "13"
               ],
               "query": [
                 {
@@ -534,7 +563,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cantidad\": 500,\n  \"caducidad\": \"2026-12-05\"\n}",
+              "raw": "{\n  \"cantidad\": 300,\n  \"caducidad\": \"2026-12-20\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -555,13 +584,13 @@
             ],
             "description": "204",
             "url": {
-              "raw": "{{baseUrl}}/despensa/1?usuarioId={{usuarioId}}",
+              "raw": "{{baseUrl}}/despensa/13?usuarioId={{usuarioId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "despensa",
-                "1"
+                "13"
               ],
               "query": [
                 {
@@ -593,13 +622,13 @@
             ],
             "description": "400",
             "url": {
-              "raw": "{{baseUrl}}/despensa/1?usuarioId={{usuarioId}}",
+              "raw": "{{baseUrl}}/despensa/13?usuarioId={{usuarioId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "despensa",
-                "1"
+                "13"
               ],
               "query": [
                 {
@@ -692,7 +721,7 @@
             "header": [],
             "description": "200 (crea la colección si no existe)",
             "url": {
-              "raw": "{{baseUrl}}/colecciones/Favoritas/recetas/1?usuarioId={{usuarioId}}",
+              "raw": "{{baseUrl}}/colecciones/Favoritas/recetas/4?usuarioId={{usuarioId}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -700,7 +729,7 @@
                 "colecciones",
                 "Favoritas",
                 "recetas",
-                "1"
+                "4"
               ],
               "query": [
                 {
@@ -718,7 +747,7 @@
             "header": [],
             "description": "409 RN-08 (lanzar dos veces)",
             "url": {
-              "raw": "{{baseUrl}}/colecciones/Favoritas/recetas/1?usuarioId={{usuarioId}}",
+              "raw": "{{baseUrl}}/colecciones/Favoritas/recetas/4?usuarioId={{usuarioId}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -726,7 +755,7 @@
                 "colecciones",
                 "Favoritas",
                 "recetas",
-                "1"
+                "4"
               ],
               "query": [
                 {
@@ -770,7 +799,44 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"recetaId\": 1,\n  \"tipo\": 3\n}",
+              "raw": "{\n  \"recetaId\": 3,\n  \"fecha\": \"2026-01-15\",\n  \"momento\": \"CENA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "14 · Comida libre sin receta",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "201 (relación opcional: sin receta)",
+            "url": {
+              "raw": "{{baseUrl}}/registros?usuarioId={{usuarioId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registros"
+              ],
+              "query": [
+                {
+                  "key": "usuarioId",
+                  "value": "{{usuarioId}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"descripcion\": \"Menú del día en el trabajo\",\n  \"fecha\": \"2026-01-15\",\n  \"momento\": \"COMIDA\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -807,7 +873,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"recetaId\": 1,\n  \"tipo\": 3\n}",
+              "raw": "{\n  \"recetaId\": 3,\n  \"fecha\": \"2026-01-15\",\n  \"momento\": \"CENA\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -817,7 +883,7 @@
           }
         },
         {
-          "name": "14 · ERROR momento no válido",
+          "name": "14 · ERROR fecha futura",
           "request": {
             "method": "POST",
             "header": [
@@ -826,7 +892,7 @@
                 "value": "application/json"
               }
             ],
-            "description": "400",
+            "description": "400 RN-07: no se registran fechas futuras",
             "url": {
               "raw": "{{baseUrl}}/registros?usuarioId={{usuarioId}}",
               "host": [
@@ -844,7 +910,44 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"recetaId\": 1,\n  \"tipo\": 5\n}",
+              "raw": "{\n  \"recetaId\": 3,\n  \"fecha\": \"2099-01-01\",\n  \"momento\": \"CENA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "14 · ERROR sin receta ni descripción",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "422",
+            "url": {
+              "raw": "{{baseUrl}}/registros?usuarioId={{usuarioId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registros"
+              ],
+              "query": [
+                {
+                  "key": "usuarioId",
+                  "value": "{{usuarioId}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fecha\": \"2026-01-16\",\n  \"momento\": \"COMIDA\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -859,13 +962,13 @@
       "name": "16 · Informe (GET /informes/recetas-populares)",
       "item": [
         {
-          "name": "16 · Recetas populares del mes",
+          "name": "16 · Recetas populares del año",
           "request": {
             "method": "GET",
             "header": [],
             "description": "200, DTO RecetaPopularDto",
             "url": {
-              "raw": "{{baseUrl}}/informes/recetas-populares?desde=2026-11-01&hasta=2026-11-30",
+              "raw": "{{baseUrl}}/informes/recetas-populares?desde=2026-01-01&hasta=2026-12-31",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -876,11 +979,11 @@
               "query": [
                 {
                   "key": "desde",
-                  "value": "2026-11-01"
+                  "value": "2026-01-01"
                 },
                 {
                   "key": "hasta",
-                  "value": "2026-11-30"
+                  "value": "2026-12-31"
                 }
               ]
             }

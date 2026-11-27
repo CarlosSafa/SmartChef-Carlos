@@ -2,10 +2,13 @@ package com.example.smartchef.modelos;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.math.BigDecimal;
 
+// N:M receta–ingrediente CON atributo (cantidad): por eso es una entidad.
+// Tiene su propio id, así que no necesita una clase Id aparte.
 @Entity
-@Table(name = "receta_ingrediente", schema = "smartchef")
+@Table(name = "recetas_ingredientes", schema = "smartchef")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -13,19 +16,18 @@ import java.math.BigDecimal;
 @Builder
 public class RecetaIngrediente {
 
-    @EmbeddedId
-    private RecetaIngredienteId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("idReceta")
-    @JoinColumn(name = "id_receta")
+    @JoinColumn(name = "id_receta", nullable = false)
     private Receta receta;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("idIngrediente")
-    @JoinColumn(name = "id_ingrediente")
+    @JoinColumn(name = "id_ingrediente", nullable = false)
     private Ingrediente ingrediente;
 
-    @Column(name = "cantidad", nullable = false, precision = 8, scale = 2)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal cantidad;
 }

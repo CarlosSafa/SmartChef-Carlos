@@ -3,6 +3,7 @@ package com.example.smartchef.controladores;
 import com.example.smartchef.dtos.response.RecetaDetalleResponseDto;
 import com.example.smartchef.excepciones.RecursoNoEncontradoException;
 import com.example.smartchef.excepciones.ReglaNegocioException;
+import com.example.smartchef.modelos.Dificultad;
 import com.example.smartchef.servicios.RecetaService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -32,13 +34,13 @@ class RecetaControllerTest {
     @MockitoBean private RecetaService recetaService;
 
     private final RecetaDetalleResponseDto tortilla = new RecetaDetalleResponseDto(
-            1, "Tortilla", "La de toda la vida", 1, 25, 4,
+            1, "Tortilla", "La de toda la vida", Dificultad.FACIL, 25, 4,
             new BigDecimal("0.63"), new BigDecimal("205.00"), List.of(), List.of(), null);
 
     private final String recetaJson = """
             {
               "nombre": "Tortilla", "descripcion": "La de toda la vida",
-              "dificultad": 1, "tiempo": 25, "raciones": 4,
+              "dificultad": "FACIL", "tiempo": 25, "raciones": 4,
               "ingredientes": [ { "ingredienteId": 1, "cantidad": 6 } ],
               "pasos": [ { "numero": 1, "descripcion": "Batir los huevos" } ]
             }
@@ -76,11 +78,11 @@ class RecetaControllerTest {
     }
 
     @Test
-    @DisplayName("Endpoint 3 · POST /api/v1/recetas → 201 con cabecera Location")
+    @DisplayName("Endpoint 3 · POST /api/v1/recetas?usuarioId=2 → 201 con cabecera Location")
     void endpoint3_alta() throws Exception {
-        given(recetaService.crear(any())).willReturn(tortilla);
+        given(recetaService.crear(eq(2), any())).willReturn(tortilla);
 
-        mockMvc.perform(post("/api/v1/recetas").contentType(MediaType.APPLICATION_JSON).content(recetaJson))
+        mockMvc.perform(post("/api/v1/recetas").param("usuarioId", "2").contentType(MediaType.APPLICATION_JSON).content(recetaJson))
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"))
                 .andExpect(jsonPath("$.id").value(1));
@@ -89,9 +91,9 @@ class RecetaControllerTest {
     @Test
     @DisplayName("Endpoint 3 · POST /api/v1/recetas con pasos con hueco → 422")
     void endpoint3_pasosConHueco() throws Exception {
-        given(recetaService.crear(any())).willThrow(new ReglaNegocioException("Los pasos deben ir numerados 1, 2, 3... sin huecos"));
+        given(recetaService.crear(eq(2), any())).willThrow(new ReglaNegocioException("Los pasos deben ir numerados 1, 2, 3... sin huecos"));
 
-        mockMvc.perform(post("/api/v1/recetas").contentType(MediaType.APPLICATION_JSON).content(recetaJson))
+        mockMvc.perform(post("/api/v1/recetas").param("usuarioId", "2").contentType(MediaType.APPLICATION_JSON).content(recetaJson))
                 .andExpect(status().is(422));
     }
 
@@ -100,7 +102,7 @@ class RecetaControllerTest {
     void endpoint3_racionesNoValidas() throws Exception {
         String json = recetaJson.replace("\"raciones\": 4", "\"raciones\": 20");
 
-        mockMvc.perform(post("/api/v1/recetas").contentType(MediaType.APPLICATION_JSON).content(json))
+        mockMvc.perform(post("/api/v1/recetas").param("usuarioId", "2").contentType(MediaType.APPLICATION_JSON).content(json))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errores.raciones").exists());
     }

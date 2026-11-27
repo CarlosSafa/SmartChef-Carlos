@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,11 +20,12 @@ public interface RecetaRepository extends JpaRepository<Receta, Integer>, JpaSpe
     Optional<Receta> findById(Integer id);
 
     // 16. Informe: recetas más cocinadas entre dos fechas (Q2 JOIN + COUNT + GROUP BY, Q5 SELECT new DTO)
-    @Query("SELECT new com.example.smartchef.dtos.response.RecetaPopularDto(r.id, r.nombre, COUNT(ur)) " +
-            "FROM UsuarioReceta ur JOIN ur.receta r " +
-            "WHERE ur.fecha BETWEEN :desde AND :hasta " +
+    // Las comidas libres (sin receta) no cuentan: el JOIN las deja fuera
+    @Query("SELECT new com.example.smartchef.dtos.response.RecetaPopularDto(r.id, r.nombre, COUNT(rc)) " +
+            "FROM RegistroComida rc JOIN rc.receta r " +
+            "WHERE rc.fecha BETWEEN :desde AND :hasta " +
             "GROUP BY r.id, r.nombre " +
-            "ORDER BY COUNT(ur) DESC")
-    List<RecetaPopularDto> findRecetasMasCocinadas(@Param("desde") LocalDateTime desde,
-                                                   @Param("hasta") LocalDateTime hasta);
+            "ORDER BY COUNT(rc) DESC")
+    List<RecetaPopularDto> findRecetasMasCocinadas(@Param("desde") LocalDate desde,
+                                                   @Param("hasta") LocalDate hasta);
 }

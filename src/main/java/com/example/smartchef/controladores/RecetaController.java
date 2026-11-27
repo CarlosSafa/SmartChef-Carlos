@@ -2,6 +2,7 @@ package com.example.smartchef.controladores;
 
 import com.example.smartchef.dtos.request.RecetaCreacionDto;
 import com.example.smartchef.dtos.response.RecetaDetalleResponseDto;
+import com.example.smartchef.modelos.Dificultad;
 import com.example.smartchef.servicios.RecetaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,10 +22,10 @@ public class RecetaController {
 
     private final RecetaService recetaService;
 
-    // 1. GET /api/v1/recetas?nombre=tort&dificultad=1&tiempoMax=30&page=0&size=10  (público)
+    // 1. GET /api/v1/recetas?nombre=tort&dificultad=FACIL&tiempoMax=30&page=0&size=10  (público)
     @GetMapping
     public Page<RecetaDetalleResponseDto> listar(@RequestParam(required = false) String nombre,
-                                                 @RequestParam(required = false) Integer dificultad,
+                                                 @RequestParam(required = false) Dificultad dificultad,
                                                  @RequestParam(required = false) Integer tiempoMax,
                                                  @PageableDefault(size = 10) Pageable pageable) {
         return recetaService.listar(nombre, dificultad, tiempoMax, pageable);
@@ -36,10 +37,11 @@ public class RecetaController {
         return recetaService.buscarPorId(id);
     }
 
-    // 3. POST /api/v1/recetas  (CHEF; la seguridad se añade en la Fase 4)
+    // 3. POST /api/v1/recetas?usuarioId=2  (CHEF; usuarioId es el autor, provisional hasta el login de la Fase 4)
     @PostMapping
-    public ResponseEntity<RecetaDetalleResponseDto> crear(@Valid @RequestBody RecetaCreacionDto peticion) {
-        RecetaDetalleResponseDto creada = recetaService.crear(peticion);
+    public ResponseEntity<RecetaDetalleResponseDto> crear(@RequestParam Integer usuarioId,
+                                                          @Valid @RequestBody RecetaCreacionDto peticion) {
+        RecetaDetalleResponseDto creada = recetaService.crear(usuarioId, peticion);
 
         URI ubicacion = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")

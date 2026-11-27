@@ -10,8 +10,8 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface DespensaMapper {
 
-    @Mapping(target = "usuarioId", source = "id.idUsuario")
-    @Mapping(target = "ingredienteId", source = "id.idIngrediente")
+    @Mapping(target = "usuarioId", source = "usuario.id")
+    @Mapping(target = "ingredienteId", source = "ingrediente.id")
     @Mapping(target = "ingredienteNombre", source = "ingrediente.nombre")
     DespensaResponseDto aResponseDto(Despensa despensa);
 

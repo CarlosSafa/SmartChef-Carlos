@@ -5,7 +5,6 @@ import com.example.smartchef.dtos.response.DespensaResponseDto;
 import com.example.smartchef.excepciones.RecursoNoEncontradoException;
 import com.example.smartchef.mappers.DespensaMapper;
 import com.example.smartchef.modelos.Despensa;
-import com.example.smartchef.modelos.DespensaId;
 import com.example.smartchef.modelos.Ingrediente;
 import com.example.smartchef.modelos.Usuario;
 import com.example.smartchef.repositorios.DespensaRepository;
@@ -48,19 +47,21 @@ public class DespensaServiceImpl implements DespensaService {
         Ingrediente ingrediente = ingredienteRepository.findById(ingredienteId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("No existe el ingrediente con id " + ingredienteId));
 
-        DespensaId id = new DespensaId(usuarioId, ingredienteId);
+        // ¿Ya tenía este ingrediente en su despensa?
+        Despensa despensa = despensaRepository.findByUsuarioIdAndIngredienteId(usuarioId, ingredienteId)
+                .orElse(null);
 
+        // Cantidad 0: se quita de la despensa
         if (peticion.cantidad().compareTo(BigDecimal.ZERO) == 0) {
-            despensaRepository.deleteById(id);
+            if (despensa != null) {
+                despensaRepository.delete(despensa);
+            }
             log.info("Ingrediente {} quitado de la despensa del usuario {}", ingredienteId, usuarioId);
             return null;
         }
 
-        Despensa despensa = despensaRepository.findById(id).orElse(null);
-
         if (despensa == null) {
             despensa = new Despensa();
-            despensa.setId(id);
             despensa.setUsuario(usuario);
             despensa.setIngrediente(ingrediente);
         }

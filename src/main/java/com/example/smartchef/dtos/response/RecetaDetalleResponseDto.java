@@ -1,5 +1,7 @@
 package com.example.smartchef.dtos.response;
 
+import com.example.smartchef.modelos.Dificultad;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -7,7 +9,7 @@ public record RecetaDetalleResponseDto(
         Integer id,
         String nombre,
         String descripcion,
-        Integer dificultad,
+        Dificultad dificultad,
         Integer tiempo,
         Integer raciones,
         BigDecimal costePorRacion,

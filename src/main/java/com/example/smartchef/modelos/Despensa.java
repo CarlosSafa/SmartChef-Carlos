@@ -2,11 +2,14 @@ package com.example.smartchef.modelos;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+// N:M usuario–ingrediente CON atributos (cantidad y caducidad): por eso es una entidad.
+// Tiene su propio id, así que no necesita una clase Id aparte.
 @Entity
-@Table(name = "despensa", schema = "smartchef")
+@Table(name = "despensas", schema = "smartchef")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -14,22 +17,21 @@ import java.time.LocalDate;
 @Builder
 public class Despensa {
 
-    @EmbeddedId
-    private DespensaId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("idUsuario")
-    @JoinColumn(name = "id_usuario")
+    @JoinColumn(name = "id_usuario", nullable = false)
     private Usuario usuario;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("idIngrediente")
-    @JoinColumn(name = "id_ingrediente")
+    @JoinColumn(name = "id_ingrediente", nullable = false)
     private Ingrediente ingrediente;
 
-    @Column(name = "cantidad", nullable = false, precision = 8, scale = 2)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal cantidad;
 
-    @Column(name = "caducidad")
+    // Puede ser null: la sal o el aceite no caducan pronto
     private LocalDate caducidad;
 }

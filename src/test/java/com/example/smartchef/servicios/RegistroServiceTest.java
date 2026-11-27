@@ -1,12 +1,14 @@
 package com.example.smartchef.servicios;
 
-import com.example.smartchef.dtos.request.UsuarioRecetaRequestDto;
+import com.example.smartchef.dtos.request.RegistroComidaRequestDto;
 import com.example.smartchef.excepciones.ConflictoException;
-import com.example.smartchef.mappers.UsuarioRecetaMapper;
+import com.example.smartchef.excepciones.ReglaNegocioException;
+import com.example.smartchef.mappers.RegistroComidaMapper;
+import com.example.smartchef.modelos.Momento;
 import com.example.smartchef.modelos.Receta;
 import com.example.smartchef.modelos.Usuario;
 import com.example.smartchef.repositorios.RecetaRepository;
-import com.example.smartchef.repositorios.UsuarioRecetaRepository;
+import com.example.smartchef.repositorios.RegistroComidaRepository;
 import com.example.smartchef.repositorios.UsuarioRepository;
 import com.example.smartchef.servicios.impl.RegistroServiceImpl;
 import org.junit.jupiter.api.DisplayName;
@@ -16,11 +18,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
@@ -29,10 +31,10 @@ import static org.mockito.Mockito.never;
 @ExtendWith(MockitoExtension.class)
 class RegistroServiceTest {
 
-    @Mock private UsuarioRecetaRepository usuarioRecetaRepository;
+    @Mock private RegistroComidaRepository registroComidaRepository;
     @Mock private UsuarioRepository usuarioRepository;
     @Mock private RecetaRepository recetaRepository;
-    @Mock private UsuarioRecetaMapper usuarioRecetaMapper;
+    @Mock private RegistroComidaMapper registroComidaMapper;
 
     @InjectMocks private RegistroServiceImpl registroService;
 
@@ -40,18 +42,31 @@ class RegistroServiceTest {
     @DisplayName("RN-07 · No registra dos cenas el mismo día (409) y no guarda nada")
     void noRegistraDosVecesElMismoMomento() {
         Usuario usuario = new Usuario();
-        usuario.setId(1);
+        usuario.setId(5);
         Receta receta = new Receta();
         receta.setId(3);
+        LocalDate hoy = LocalDate.now();
 
-        given(usuarioRepository.findById(1)).willReturn(Optional.of(usuario));
+        given(usuarioRepository.findById(5)).willReturn(Optional.of(usuario));
         given(recetaRepository.findById(3)).willReturn(Optional.of(receta));
-        given(usuarioRecetaRepository.existsByUsuarioIdAndTipoAndFechaBetween(eq(1), eq(3), any(), any()))
-                .willReturn(true);
+        given(registroComidaRepository.existsByUsuarioIdAndFechaAndMomento(5, hoy, Momento.CENA)).willReturn(true);
 
-        assertThatThrownBy(() -> registroService.registrar(1, new UsuarioRecetaRequestDto(3, 3)))
+        assertThatThrownBy(() -> registroService.registrar(5, new RegistroComidaRequestDto(3, null, hoy, Momento.CENA)))
                 .isInstanceOf(ConflictoException.class);
 
-        then(usuarioRecetaRepository).should(never()).save(any());
+        then(registroComidaRepository).should(never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Sin receta y sin descripción → 422 y no guarda nada")
+    void noRegistraSinRecetaNiDescripcion() {
+        Usuario usuario = new Usuario();
+        usuario.setId(5);
+        given(usuarioRepository.findById(5)).willReturn(Optional.of(usuario));
+
+        assertThatThrownBy(() -> registroService.registrar(5, new RegistroComidaRequestDto(null, " ", LocalDate.now(), Momento.COMIDA)))
+                .isInstanceOf(ReglaNegocioException.class);
+
+        then(registroComidaRepository).should(never()).save(any());
     }
 }

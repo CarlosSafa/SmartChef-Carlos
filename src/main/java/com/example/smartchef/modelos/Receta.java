@@ -2,38 +2,57 @@ package com.example.smartchef.modelos;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "receta", schema = "smartchef")
+@Table(name = "recetas", schema = "smartchef")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = {"pasos", "fotos", "ingredientes"})
-public class    Receta {
+@ToString(exclude = {"pasos", "fotos", "ingredientes", "autor"})
+public class Receta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Integer id;
 
-    @Column(name = "nombre", nullable = false, length = 150)
+    @Column(nullable = false, length = 150)
     private String nombre;
 
-    @Column(name = "descripcion", columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String descripcion;
 
-    @Column(name = "dificultad")
-    private Integer dificultad;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
+    private Dificultad dificultad;
 
-    @Column(name = "tiempo")
+    @Column(nullable = false)
     private Integer tiempo;
 
-    @Column(name = "raciones")
+    @Column(nullable = false)
     private Integer raciones;
+
+    // El chef que la publica (RN-10: solo él o un ADMIN pueden modificarla)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_autor", nullable = false)
+    private Usuario autor;
+
+    // RN-09: retirar una receta es ponerla a false (baja lógica)
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean activa = true;
+
+    // Campos de auditoría (sección 3.2): se rellenan solos
+    @Column(name = "creado_en", nullable = false, updatable = false)
+    private LocalDateTime creadoEn;
+
+    @Column(name = "actualizado_en", nullable = false)
+    private LocalDateTime actualizadoEn;
 
     @OneToMany(mappedBy = "receta", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
@@ -42,9 +61,20 @@ public class    Receta {
 
     @OneToMany(mappedBy = "receta", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<Foto> fotos = new ArrayList<>();
+    private List<FotoReceta> fotos = new ArrayList<>();
 
     @OneToMany(mappedBy = "receta", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<RecetaIngrediente> ingredientes = new ArrayList<>();
+
+    @PrePersist
+    void alCrear() {
+        creadoEn = LocalDateTime.now();
+        actualizadoEn = creadoEn;
+    }
+
+    @PreUpdate
+    void alActualizar() {
+        actualizadoEn = LocalDateTime.now();
+    }
 }

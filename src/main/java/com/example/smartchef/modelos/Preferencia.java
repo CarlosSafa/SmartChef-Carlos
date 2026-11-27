@@ -2,11 +2,11 @@ package com.example.smartchef.modelos;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.util.HashSet;
-import java.util.Set;
 
+// Catálogo de preferencias (VEGETARIANO, SIN_GLUTEN, RAPIDO, ECONOMICO...).
+// Es una tabla para poder añadir preferencias nuevas sin cambiar el código.
 @Entity
-@Table(name = "preferencia", schema = "smartchef")
+@Table(name = "preferencias", schema = "smartchef")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,18 +16,8 @@ public class Preferencia {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Integer id;
 
-    @Column(name = "tipo", nullable = false)
-    private Integer tipo;
-
-    // N:M con ingrediente (tabla preferencia_ingrediente, sin datos propios)
-    @ManyToMany
-    @JoinTable(
-            name = "preferencia_ingrediente", schema = "smartchef",
-            joinColumns = @JoinColumn(name = "id_preferencia"),
-            inverseJoinColumns = @JoinColumn(name = "id_ingrediente"))
-    @Builder.Default
-    private Set<Ingrediente> ingredientes = new HashSet<>();
+    @Column(nullable = false, unique = true, length = 30)
+    private String nombre;
 }

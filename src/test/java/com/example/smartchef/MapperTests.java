@@ -6,7 +6,10 @@ import com.example.smartchef.dtos.response.IngredienteResponseDto;
 import com.example.smartchef.dtos.response.UsuarioResponseDto;
 import com.example.smartchef.mappers.IngredienteMapper;
 import com.example.smartchef.mappers.UsuarioMapper;
+import com.example.smartchef.modelos.Categoria;
 import com.example.smartchef.modelos.Ingrediente;
+import com.example.smartchef.modelos.Rol;
+import com.example.smartchef.modelos.UnidadMedida;
 import com.example.smartchef.modelos.Usuario;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,6 +38,7 @@ class MapperTests {
 
         assertNotNull(usuario);
         assertEquals("Lucía Ruiz", usuario.getNombre());
+        assertEquals("lucia@example.com", usuario.getEmail());
         assertEquals("miPassword123", usuario.getContrasena());
     }
 
@@ -45,14 +49,16 @@ class MapperTests {
         usuario.setId(1);
         usuario.setNombre("Carlos Gómez");
         usuario.setContrasena("hash_secret");
-        usuario.setRol(1);
+        usuario.setEmail("carlos@example.com");
+        usuario.setRol(Rol.ADMIN);
 
         UsuarioResponseDto responseDto = usuarioMapper.usuarioToUsuarioResponseDto(usuario);
 
         assertNotNull(responseDto);
         assertEquals(1, responseDto.id());
         assertEquals("Carlos Gómez", responseDto.nombre());
-        assertEquals(1, responseDto.rol());
+        assertEquals(Rol.ADMIN, responseDto.rol());
+        assertEquals("carlos@example.com", responseDto.email());
     }
 
     @Test
@@ -60,7 +66,8 @@ class MapperTests {
     void testIngredienteMapper() {
         IngredienteRequestDto requestDto = new IngredienteRequestDto(
                 "Aceite de Oliva",
-                3,
+                UnidadMedida.MILILITROS,
+                Categoria.DESPENSA,
                 new BigDecimal("884.00"),
                 new BigDecimal("0.0120")
         );
@@ -69,6 +76,7 @@ class MapperTests {
         Ingrediente ingrediente = ingredienteMapper.aEntidad(requestDto);
         assertNotNull(ingrediente);
         assertEquals("Aceite de Oliva", ingrediente.getNombre());
+        assertEquals(UnidadMedida.MILILITROS, ingrediente.getUnidadMedida());
 
         // Entidad -> ResponseDTO
         ingrediente.setId(10);

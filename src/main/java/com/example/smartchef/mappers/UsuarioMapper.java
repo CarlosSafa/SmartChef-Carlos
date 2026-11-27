@@ -11,11 +11,10 @@ public interface UsuarioMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "rol", ignore = true)
-    @Mapping(target = "ingredientes", ignore = true)
+    @Mapping(target = "creadoEn", ignore = true)
     @Mapping(target = "preferencias", ignore = true)
     Usuario registroDtoToUsuario(RegistroRequestDto dto);
 
-    @Mapping(target = "email", ignore = true)
     @Mapping(target = "preferencias", ignore = true)
     UsuarioResponseDto usuarioToUsuarioResponseDto(Usuario usuario);
 }

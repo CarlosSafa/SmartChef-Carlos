@@ -1,7 +1,7 @@
 package com.example.smartchef.controladores;
 
-import com.example.smartchef.dtos.request.UsuarioRecetaRequestDto;
-import com.example.smartchef.dtos.response.UsuarioRecetaResponseDto;
+import com.example.smartchef.dtos.request.RegistroComidaRequestDto;
+import com.example.smartchef.dtos.response.RegistroComidaResponseDto;
 import com.example.smartchef.servicios.RegistroService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +19,8 @@ public class RegistroController {
     // (usuarioId es provisional: en la Fase 4 saldrá del login)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UsuarioRecetaResponseDto registrar(@RequestParam Integer usuarioId,
-                                              @Valid @RequestBody UsuarioRecetaRequestDto peticion) {
+    public RegistroComidaResponseDto registrar(@RequestParam Integer usuarioId,
+                                              @Valid @RequestBody RegistroComidaRequestDto peticion) {
         return registroService.registrar(usuarioId, peticion);
     }
 }

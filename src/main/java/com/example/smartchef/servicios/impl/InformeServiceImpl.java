@@ -29,9 +29,7 @@ public class InformeServiceImpl implements InformeService {
             throw new ReglaNegocioException("La fecha 'desde' no puede ser posterior a 'hasta'");
         }
 
-        // De "desde" a las 00:00 hasta "hasta" a las 23:59:59
-        List<RecetaPopularDto> masCocinadas = recetaRepository.findRecetasMasCocinadas(
-                desde.atStartOfDay(), hasta.atTime(23, 59, 59));
+        List<RecetaPopularDto> masCocinadas = recetaRepository.findRecetasMasCocinadas(desde, hasta);
         List<RecetaPopularDto> masGuardadas = coleccionRepository.findRecetasMasGuardadas();
 
         log.info("Informe de recetas populares del {} al {}", desde, hasta);

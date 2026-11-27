@@ -1,5 +1,6 @@
 package com.example.smartchef.dtos.request;
 
+import com.example.smartchef.modelos.Dificultad;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import java.util.List;
@@ -11,8 +12,8 @@ public record RecetaCreacionDto(
 
         String descripcion,
 
-        @NotNull(message = "La dificultad es obligatoria")
-        Integer dificultad,
+        @NotNull(message = "La dificultad es obligatoria (FACIL, MEDIA o DIFICIL)")
+        Dificultad dificultad,
 
         @NotNull(message = "El tiempo de preparación es obligatorio")
         @Positive(message = "El tiempo debe ser mayor a 0 minutos")

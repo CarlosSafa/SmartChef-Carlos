@@ -12,6 +12,7 @@ import java.util.List;
 public interface IngredienteMapper {
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "preferencias", ignore = true)
     Ingrediente aEntidad(IngredienteRequestDto dto);
 
     IngredienteResponseDto aResponseDto(Ingrediente ingrediente);

@@ -8,14 +8,16 @@ import com.example.smartchef.excepciones.RecursoNoEncontradoException;
 import com.example.smartchef.excepciones.ReglaNegocioException;
 import com.example.smartchef.mappers.RecetaIngredienteMapper;
 import com.example.smartchef.mappers.RecetaMapper;
+import com.example.smartchef.modelos.Dificultad;
 import com.example.smartchef.modelos.Ingrediente;
 import com.example.smartchef.modelos.Paso;
 import com.example.smartchef.modelos.Receta;
 import com.example.smartchef.modelos.RecetaIngrediente;
-import com.example.smartchef.modelos.RecetaIngredienteId;
+import com.example.smartchef.modelos.Usuario;
 import com.example.smartchef.repositorios.IngredienteRepository;
 import com.example.smartchef.repositorios.RecetaRepository;
 import com.example.smartchef.repositorios.RecetaSpecifications;
+import com.example.smartchef.repositorios.UsuarioRepository;
 import com.example.smartchef.servicios.RecetaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,13 +40,14 @@ public class RecetaServiceImpl implements RecetaService {
 
     private final RecetaRepository recetaRepository;
     private final IngredienteRepository ingredienteRepository;
+    private final UsuarioRepository usuarioRepository;
     private final RecetaMapper recetaMapper;
     private final RecetaIngredienteMapper recetaIngredienteMapper;
 
     @Override
-    public Page<RecetaDetalleResponseDto> listar(String nombre, Integer dificultad, Integer tiempoMax, Pageable pageable) {
-        // Q7: se empieza con "todas" y se añade cada filtro solo si viene en la petición
-        Specification<Receta> filtro = RecetaSpecifications.todas();
+    public Page<RecetaDetalleResponseDto> listar(String nombre, Dificultad dificultad, Integer tiempoMax, Pageable pageable) {
+        // Q7: se empieza con las recetas activas (RN-09) y se añade cada filtro solo si viene en la petición
+        Specification<Receta> filtro = RecetaSpecifications.activas();
         if (nombre != null && !nombre.isBlank()) {
             filtro = filtro.and(RecetaSpecifications.nombreContiene(nombre));
         }
@@ -99,7 +102,7 @@ public class RecetaServiceImpl implements RecetaService {
     }
     @Override
     @Transactional
-    public RecetaDetalleResponseDto crear(RecetaCreacionDto peticion) {
+    public RecetaDetalleResponseDto crear(Integer autorId, RecetaCreacionDto peticion) {
         // RN-01: los pasos van numerados 1, 2, 3... sin huecos
         for (int i = 0; i < peticion.pasos().size(); i++) {
             int numeroEsperado = i + 1;
@@ -117,8 +120,12 @@ public class RecetaServiceImpl implements RecetaService {
             idsVistos.add(linea.ingredienteId());
         }
 
+        Usuario autor = usuarioRepository.findById(autorId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("No existe el usuario con id " + autorId));
+
         // Crear la receta con sus pasos
         Receta receta = recetaMapper.aEntidad(peticion);
+        receta.setAutor(autor);
         for (Paso paso : receta.getPasos()) {
             paso.setReceta(receta);
         }
@@ -130,7 +137,6 @@ public class RecetaServiceImpl implements RecetaService {
                     .orElseThrow(() -> new RecursoNoEncontradoException("No existe el ingrediente con id " + linea.ingredienteId()));
 
             RecetaIngrediente recetaIngrediente = new RecetaIngrediente();
-            recetaIngrediente.setId(new RecetaIngredienteId(guardada.getId(), ingrediente.getId()));
             recetaIngrediente.setReceta(guardada);
             recetaIngrediente.setIngrediente(ingrediente);
             recetaIngrediente.setCantidad(linea.cantidad());
