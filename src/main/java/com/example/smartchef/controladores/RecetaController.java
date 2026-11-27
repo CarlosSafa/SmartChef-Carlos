@@ -1,9 +1,15 @@
 package com.example.smartchef.controladores;
 
+import com.example.smartchef.dtos.request.RecetaCreacionDto;
 import com.example.smartchef.dtos.response.RecetaDetalleResponseDto;
 import com.example.smartchef.servicios.RecetaService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("/api/v1/recetas")
@@ -16,5 +22,18 @@ public class RecetaController {
     @GetMapping("/{id}")
     public RecetaDetalleResponseDto buscar(@PathVariable Integer id) {
         return recetaService.buscarPorId(id);
+    }
+
+    // 3. POST /api/v1/recetas  (CHEF; la seguridad se añade en la Fase 4)
+    @PostMapping
+    public ResponseEntity<RecetaDetalleResponseDto> crear(@Valid @RequestBody RecetaCreacionDto peticion) {
+        RecetaDetalleResponseDto creada = recetaService.crear(peticion);
+
+        URI ubicacion = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(creada.id())
+                .toUri();
+
+        return ResponseEntity.created(ubicacion).body(creada);
     }
 }
