@@ -3,10 +3,8 @@ package com.example.smartchef.servicios.impl;
 import com.example.smartchef.dtos.request.RecetaCreacionDto;
 import com.example.smartchef.dtos.request.RecetaIngredienteRequestDto;
 import com.example.smartchef.dtos.response.RecetaDetalleResponseDto;
-import com.example.smartchef.dtos.response.RecetaIngredienteResponseDto;
 import com.example.smartchef.excepciones.RecursoNoEncontradoException;
 import com.example.smartchef.excepciones.ReglaNegocioException;
-import com.example.smartchef.mappers.RecetaIngredienteMapper;
 import com.example.smartchef.mappers.RecetaMapper;
 import com.example.smartchef.modelos.Dificultad;
 import com.example.smartchef.modelos.Ingrediente;
@@ -16,14 +14,13 @@ import com.example.smartchef.modelos.RecetaIngrediente;
 import com.example.smartchef.modelos.Usuario;
 import com.example.smartchef.repositorios.IngredienteRepository;
 import com.example.smartchef.repositorios.RecetaRepository;
-import com.example.smartchef.repositorios.RecetaSpecifications;
+import com.example.smartchef.repositorios.RecetaTarjetaView;
 import com.example.smartchef.repositorios.UsuarioRepository;
 import com.example.smartchef.servicios.RecetaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,24 +39,11 @@ public class RecetaServiceImpl implements RecetaService {
     private final IngredienteRepository ingredienteRepository;
     private final UsuarioRepository usuarioRepository;
     private final RecetaMapper recetaMapper;
-    private final RecetaIngredienteMapper recetaIngredienteMapper;
 
     @Override
-    public Page<RecetaDetalleResponseDto> listar(String nombre, Dificultad dificultad, Integer tiempoMax, Pageable pageable) {
-        // Q7: se empieza con las recetas activas (RN-09) y se añade cada filtro solo si viene en la petición
-        Specification<Receta> filtro = RecetaSpecifications.activas();
-        if (nombre != null && !nombre.isBlank()) {
-            filtro = filtro.and(RecetaSpecifications.nombreContiene(nombre));
-        }
-        if (dificultad != null) {
-            filtro = filtro.and(RecetaSpecifications.dificultadIgual(dificultad));
-        }
-        if (tiempoMax != null) {
-            filtro = filtro.and(RecetaSpecifications.tiempoMaximo(tiempoMax));
-        }
-
-        Page<Receta> pagina = recetaRepository.findAll(filtro, pageable);
-        return pagina.map(recetaMapper::aDetalleDto);
+    public Page<RecetaTarjetaView> listar(String nombre, List<Dificultad> dificultades, Integer tiempoMax, Pageable pageable) {
+        return recetaRepository.findByActivaTrueAndNombreContainingIgnoreCaseAndDificultadInAndTiempoLessThanEqual(
+                nombre, dificultades, tiempoMax, pageable);
     }
 
     @Override
@@ -67,38 +51,12 @@ public class RecetaServiceImpl implements RecetaService {
         Receta receta = recetaRepository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("No existe la receta con id " + id));
 
-        List<RecetaIngredienteResponseDto> ingredientes = new ArrayList<>();
-        BigDecimal caloriasTotales = BigDecimal.ZERO;
-        BigDecimal costeTotal = BigDecimal.ZERO;
+        // RN-02: calorías y coste por ración salen de los ingredientes (las sumas las hace la base de datos)
+        BigDecimal raciones = BigDecimal.valueOf(receta.getRaciones());
+        BigDecimal caloriasPorRacion = recetaRepository.sumarCalorias(id).divide(raciones, 2, RoundingMode.HALF_UP);
+        BigDecimal costePorRacion = recetaRepository.sumarCoste(id).divide(raciones, 2, RoundingMode.HALF_UP);
 
-        // RN-02: calorías y coste salen de los ingredientes (cantidad x valor por unidad)
-        for (RecetaIngrediente linea : receta.getIngredientes()) {
-            Ingrediente ingrediente = linea.getIngrediente();
-
-            BigDecimal calorias = BigDecimal.ZERO;
-            if (ingrediente.getCalorias() != null) {
-                calorias = linea.getCantidad().multiply(ingrediente.getCalorias()).setScale(2, RoundingMode.HALF_UP);
-            }
-
-            BigDecimal coste = BigDecimal.ZERO;
-            if (ingrediente.getPrecio() != null) {
-                coste = linea.getCantidad().multiply(ingrediente.getPrecio()).setScale(2, RoundingMode.HALF_UP);
-            }
-
-            caloriasTotales = caloriasTotales.add(calorias);
-            costeTotal = costeTotal.add(coste);
-            ingredientes.add(recetaIngredienteMapper.aResponseDto(linea, calorias, coste));
-        }
-
-        BigDecimal raciones = BigDecimal.ONE;
-        if (receta.getRaciones() != null && receta.getRaciones() > 0) {
-            raciones = BigDecimal.valueOf(receta.getRaciones());
-        }
-
-        BigDecimal caloriasPorRacion = caloriasTotales.divide(raciones, 2, RoundingMode.HALF_UP);
-        BigDecimal costePorRacion = costeTotal.divide(raciones, 2, RoundingMode.HALF_UP);
-
-        return recetaMapper.aDetalleCompleto(receta, ingredientes, costePorRacion, caloriasPorRacion);
+        return recetaMapper.aDetalleCompleto(receta, costePorRacion, caloriasPorRacion);
     }
     @Override
     @Transactional

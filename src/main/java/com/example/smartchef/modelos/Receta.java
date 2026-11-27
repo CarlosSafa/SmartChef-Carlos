@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = {"pasos", "fotos", "ingredientes", "autor"})
+@ToString(exclude = {"pasos", "ingredientes", "autor"})
 public class Receta {
 
     @Id
@@ -58,10 +58,6 @@ public class Receta {
     @Builder.Default
     @OrderBy("numero")
     private List<Paso> pasos = new ArrayList<>();
-
-    @OneToMany(mappedBy = "receta", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<FotoReceta> fotos = new ArrayList<>();
 
     @OneToMany(mappedBy = "receta", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

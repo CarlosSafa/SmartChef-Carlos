@@ -3,7 +3,6 @@ package com.example.smartchef.servicios.impl;
 import com.example.smartchef.dtos.request.RegistroComidaRequestDto;
 import com.example.smartchef.dtos.response.RegistroComidaResponseDto;
 import com.example.smartchef.dtos.response.ResumenDiaDto;
-import com.example.smartchef.dtos.response.SemanaResponseDto;
 import com.example.smartchef.excepciones.ConflictoException;
 import com.example.smartchef.excepciones.RecursoNoEncontradoException;
 import com.example.smartchef.excepciones.ReglaNegocioException;
@@ -11,7 +10,6 @@ import com.example.smartchef.mappers.RegistroComidaMapper;
 import com.example.smartchef.modelos.Receta;
 import com.example.smartchef.modelos.RegistroComida;
 import com.example.smartchef.modelos.Usuario;
-import com.example.smartchef.repositorios.CaloriasDiaProyeccion;
 import com.example.smartchef.repositorios.RecetaRepository;
 import com.example.smartchef.repositorios.RegistroComidaRepository;
 import com.example.smartchef.repositorios.UsuarioRepository;
@@ -21,10 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -71,33 +67,15 @@ public class RegistroServiceImpl implements RegistroService {
     }
 
     @Override
-    public SemanaResponseDto semana(Integer usuarioId, LocalDate fecha) {
+    public List<ResumenDiaDto> semana(Integer usuarioId, LocalDate fecha) {
         if (!usuarioRepository.existsById(usuarioId)) {
             throw new RecursoNoEncontradoException("No existe el usuario con id " + usuarioId);
         }
 
-        // Las calorías de los días que tienen algo registrado
-        List<CaloriasDiaProyeccion> filas = registroComidaRepository.findCaloriasPorDiaDeLaSemana(usuarioId, fecha);
-
-        // Se recorren los 7 días, de lunes a domingo; los días sin registros salen con 0
+        // La semana va de lunes a domingo
         LocalDate lunes = fecha.with(DayOfWeek.MONDAY);
-        List<ResumenDiaDto> dias = new ArrayList<>();
-        BigDecimal caloriasSemana = BigDecimal.ZERO;
+        LocalDate domingo = lunes.plusDays(6);
 
-        for (int i = 0; i < 7; i++) {
-            LocalDate dia = lunes.plusDays(i);
-            BigDecimal calorias = BigDecimal.ZERO;
-
-            for (CaloriasDiaProyeccion fila : filas) {
-                if (fila.getDia() == i + 1) {
-                    calorias = fila.getCalorias();
-                }
-            }
-
-            dias.add(new ResumenDiaDto(dia, calorias));
-            caloriasSemana = caloriasSemana.add(calorias);
-        }
-
-        return new SemanaResponseDto(lunes, lunes.plusDays(6), caloriasSemana, dias);
+        return registroComidaRepository.findCaloriasPorDia(usuarioId, lunes, domingo);
     }
 }

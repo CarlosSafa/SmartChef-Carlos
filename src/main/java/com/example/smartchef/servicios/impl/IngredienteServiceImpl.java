@@ -1,9 +1,6 @@
 package com.example.smartchef.servicios.impl;
 
-import com.example.smartchef.dtos.request.IngredienteRequestDto;
 import com.example.smartchef.dtos.response.IngredienteResponseDto;
-import com.example.smartchef.excepciones.ConflictoException;
-import com.example.smartchef.excepciones.RecursoNoEncontradoException;
 import com.example.smartchef.mappers.IngredienteMapper;
 import com.example.smartchef.modelos.Ingrediente;
 import com.example.smartchef.repositorios.IngredienteRepository;
@@ -33,29 +30,7 @@ public class IngredienteServiceImpl implements IngredienteService {
             pagina = ingredienteRepository.findByNombreContainingIgnoreCase(texto, pageable);
         }
 
-        // map() de Page convierte el contenido sin perder el total ni la página
+        // map() de Page convierte el contenido sin perder el total ni la página (manual, apartado 11.2)
         return pagina.map(ingredienteMapper::aResponseDto);
-    }
-
-    @Override
-    public IngredienteResponseDto buscarPorId(Integer id) {
-        Ingrediente ingrediente = ingredienteRepository.findById(id)
-                .orElseThrow(() -> new RecursoNoEncontradoException("No existe el ingrediente con id " + id));
-        return ingredienteMapper.aResponseDto(ingrediente);
-    }
-
-    @Override
-    @Transactional
-    public IngredienteResponseDto crear(IngredienteRequestDto peticion) {
-        // Catálogo común: "el tomate es siempre el mismo tomate", así que no se repiten nombres
-        if (ingredienteRepository.existsByNombreIgnoreCase(peticion.nombre())) {
-            throw new ConflictoException("Ya existe un ingrediente con el nombre " + peticion.nombre());
-        }
-
-        Ingrediente ingrediente = ingredienteMapper.aEntidad(peticion);
-        Ingrediente guardado = ingredienteRepository.save(ingrediente);
-
-        log.info("Ingrediente creado: id={}, nombre={}", guardado.getId(), guardado.getNombre());
-        return ingredienteMapper.aResponseDto(guardado);
     }
 }

@@ -15,6 +15,5 @@ public record RecetaDetalleResponseDto(
         BigDecimal costePorRacion,
         BigDecimal caloriasPorRacion,
         List<RecetaIngredienteResponseDto> ingredientes,
-        List<PasoResponseDto> pasos,
-        List<String> fotosUrl
+        List<PasoResponseDto> pasos
 ) {}

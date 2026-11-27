@@ -2,7 +2,6 @@ package com.example.smartchef.controladores;
 
 import com.example.smartchef.dtos.response.RegistroComidaResponseDto;
 import com.example.smartchef.dtos.response.ResumenDiaDto;
-import com.example.smartchef.dtos.response.SemanaResponseDto;
 import com.example.smartchef.excepciones.ConflictoException;
 import com.example.smartchef.modelos.Momento;
 import com.example.smartchef.servicios.RegistroService;
@@ -16,7 +15,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -76,20 +74,14 @@ class RegistroControllerTest {
     }
 
     @Test
-    @DisplayName("Endpoint 15 · GET /api/v1/registros/semana?usuarioId=5&fecha=2026-11-27 → 200 con los 7 días")
+    @DisplayName("Endpoint 15 · GET /api/v1/registros/semana?usuarioId=5&fecha=2026-11-27 → 200 con los días y sus calorías")
     void endpoint15_semana() throws Exception {
-        LocalDate lunes = LocalDate.of(2026, 11, 23);
-        List<ResumenDiaDto> dias = new ArrayList<>();
-        for (int i = 0; i < 7; i++) {
-            dias.add(new ResumenDiaDto(lunes.plusDays(i), BigDecimal.ZERO));
-        }
         given(registroService.semana(5, LocalDate.of(2026, 11, 27)))
-                .willReturn(new SemanaResponseDto(lunes, lunes.plusDays(6), BigDecimal.ZERO, dias));
+                .willReturn(List.of(new ResumenDiaDto(LocalDate.of(2026, 11, 25), new BigDecimal("468.50"))));
 
         mockMvc.perform(get("/api/v1/registros/semana").param("usuarioId", "5").param("fecha", "2026-11-27"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.desde").value("2026-11-23"))
-                .andExpect(jsonPath("$.hasta").value("2026-11-29"))
-                .andExpect(jsonPath("$.dias.length()").value(7));
+                .andExpect(jsonPath("$[0].fecha").value("2026-11-25"))
+                .andExpect(jsonPath("$[0].calorias").value(468.50));
     }
 }

@@ -4,6 +4,7 @@ import com.example.smartchef.dtos.response.RecetaDetalleResponseDto;
 import com.example.smartchef.excepciones.RecursoNoEncontradoException;
 import com.example.smartchef.excepciones.ReglaNegocioException;
 import com.example.smartchef.modelos.Dificultad;
+import com.example.smartchef.repositorios.RecetaTarjetaView;
 import com.example.smartchef.servicios.RecetaService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,7 +36,7 @@ class RecetaControllerTest {
 
     private final RecetaDetalleResponseDto tortilla = new RecetaDetalleResponseDto(
             1, "Tortilla", "La de toda la vida", Dificultad.FACIL, 25, 4,
-            new BigDecimal("0.63"), new BigDecimal("205.00"), List.of(), List.of(), null);
+            new BigDecimal("0.63"), new BigDecimal("205.00"), List.of(), List.of());
 
     private final String recetaJson = """
             {
@@ -49,7 +50,15 @@ class RecetaControllerTest {
     @Test
     @DisplayName("Endpoint 1 · GET /api/v1/recetas?nombre=tort → 200 con la página de recetas")
     void endpoint1_catalogo() throws Exception {
-        given(recetaService.listar(any(), any(), any(), any())).willReturn(new PageImpl<>(List.of(tortilla)));
+        // Una tarjeta de receta de ejemplo (la proyección es una interfaz: aquí la rellenamos a mano)
+        RecetaTarjetaView tarjeta = new RecetaTarjetaView() {
+            public Integer getId() { return 1; }
+            public String getNombre() { return "Tortilla"; }
+            public Dificultad getDificultad() { return Dificultad.FACIL; }
+            public Integer getTiempo() { return 25; }
+            public Integer getRaciones() { return 4; }
+        };
+        given(recetaService.listar(any(), any(), any(), any())).willReturn(new PageImpl<>(List.of(tarjeta)));
 
         mockMvc.perform(get("/api/v1/recetas").param("nombre", "tort"))
                 .andExpect(status().isOk())

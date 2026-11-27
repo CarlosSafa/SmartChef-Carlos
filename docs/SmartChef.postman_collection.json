@@ -339,7 +339,7 @@
       ]
     },
     {
-      "name": "06 · Ingredientes (/ingredientes)",
+      "name": "06 · Catálogo de ingredientes (GET /ingredientes)",
       "item": [
         {
           "name": "6 · Catálogo paginado",
@@ -388,121 +388,6 @@
                   "value": "tom"
                 }
               ]
-            }
-          }
-        },
-        {
-          "name": "Extra · Ingrediente por id",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "description": "200",
-            "url": {
-              "raw": "{{baseUrl}}/ingredientes/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "ingredientes",
-                "1"
-              ],
-              "query": []
-            }
-          }
-        },
-        {
-          "name": "Extra · Alta de ingrediente",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "description": "201 + Location",
-            "url": {
-              "raw": "{{baseUrl}}/ingredientes",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "ingredientes"
-              ],
-              "query": []
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Berenjena\",\n  \"unidadMedida\": \"GRAMOS\",\n  \"categoria\": \"VERDULERIA\",\n  \"calorias\": 0.25,\n  \"precio\": 0.003\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "Extra · ERROR ingrediente duplicado",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "description": "409 (lanzar después del alta)",
-            "url": {
-              "raw": "{{baseUrl}}/ingredientes",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "ingredientes"
-              ],
-              "query": []
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Berenjena\",\n  \"unidadMedida\": \"GRAMOS\",\n  \"categoria\": \"VERDULERIA\",\n  \"calorias\": 0.25,\n  \"precio\": 0.003\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "Extra · ERROR precio negativo",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "description": "400",
-            "url": {
-              "raw": "{{baseUrl}}/ingredientes",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "ingredientes"
-              ],
-              "query": []
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Error\",\n  \"unidadMedida\": \"GRAMOS\",\n  \"categoria\": \"VERDULERIA\",\n  \"calorias\": 1,\n  \"precio\": -1\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             }
           }
         }
@@ -953,6 +838,87 @@
                   "language": "json"
                 }
               }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "15 · Mi semana (GET /registros/semana)",
+      "item": [
+        {
+          "name": "15 · Mi semana (hoy)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "200: los 7 días de esta semana con sus calorías",
+            "url": {
+              "raw": "{{baseUrl}}/registros/semana?usuarioId={{usuarioId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registros",
+                "semana"
+              ],
+              "query": [
+                {
+                  "key": "usuarioId",
+                  "value": "{{usuarioId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "15 · Semana de una fecha",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "200: semana del 12 al 18 de enero",
+            "url": {
+              "raw": "{{baseUrl}}/registros/semana?usuarioId={{usuarioId}}&fecha=2026-01-15",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registros",
+                "semana"
+              ],
+              "query": [
+                {
+                  "key": "usuarioId",
+                  "value": "{{usuarioId}}"
+                },
+                {
+                  "key": "fecha",
+                  "value": "2026-01-15"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "15 · ERROR usuario inexistente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "404",
+            "url": {
+              "raw": "{{baseUrl}}/registros/semana?usuarioId=9999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registros",
+                "semana"
+              ],
+              "query": [
+                {
+                  "key": "usuarioId",
+                  "value": "9999"
+                }
+              ]
             }
           }
         }

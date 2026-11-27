@@ -1,6 +1,7 @@
 package com.example.smartchef;
 
 import com.example.smartchef.dtos.response.RecetaPopularDto;
+import com.example.smartchef.dtos.response.ResumenDiaDto;
 import com.example.smartchef.modelos.*;
 import com.example.smartchef.repositorios.*;
 import org.junit.jupiter.api.DisplayName;
@@ -9,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -71,17 +71,16 @@ class SmartChefApplicationTests {
     }
 
     @Test
-    @DisplayName("Endpoint 1 · GET /recetas · Specification con filtros combinables (Q7) y paginación (Q6)")
+    @DisplayName("Endpoint 1 · GET /recetas · consulta derivada con proyección RecetaTarjetaView (Q1, Q5, Q6)")
     void endpoint1_catalogoConFiltros() {
         crearReceta("Tortilla de prueba", Dificultad.MEDIA, 25);
         crearReceta("Tortilla rápida de prueba", Dificultad.FACIL, 10);
         Receta retirada = crearReceta("Tortilla retirada de prueba", Dificultad.FACIL, 5);
         retirada.setActiva(false);
 
-        Specification<Receta> filtro = RecetaSpecifications.activas()
-                .and(RecetaSpecifications.nombreContiene("TORTILLA"))
-                .and(RecetaSpecifications.tiempoMaximo(20));
-        Page<Receta> pagina = recetaRepository.findAll(filtro, PageRequest.of(0, 5));
+        Page<RecetaTarjetaView> pagina = recetaRepository
+                .findByActivaTrueAndNombreContainingIgnoreCaseAndDificultadInAndTiempoLessThanEqual(
+                        "TORTILLA", List.of(Dificultad.FACIL, Dificultad.MEDIA, Dificultad.DIFICIL), 20, PageRequest.of(0, 5));
 
         System.out.println("Endpoint 1 -> recetas encontradas:");
         pagina.forEach(r -> System.out.println("  " + r.getNombre() + " (" + r.getTiempo() + " min)"));
@@ -91,15 +90,21 @@ class SmartChefApplicationTests {
     }
 
     @Test
-    @DisplayName("Endpoint 2 · GET /recetas/{id} · findById con @EntityGraph (Q8)")
+    @DisplayName("Endpoint 2 · GET /recetas/{id} · findById con @EntityGraph (Q8) y sumas de calorías y coste (Q2, RN-02)")
     void endpoint2_detalleReceta() {
         Receta receta = crearReceta("Ensalada de prueba", Dificultad.FACIL, 10);
+        Ingrediente lechuga = crearIngrediente("Lechuga de prueba"); // 1 caloría y 0,01 € por gramo
+        receta.getIngredientes().add(RecetaIngrediente.builder()
+                .receta(receta).ingrediente(lechuga).cantidad(new BigDecimal("400"))
+                .build());
+        recetaRepository.flush();
 
         Optional<Receta> encontrada = recetaRepository.findById(receta.getId());
 
         assertTrue(encontrada.isPresent());
-        assertEquals("Ensalada de prueba", encontrada.get().getNombre());
         assertNotNull(encontrada.get().getCreadoEn(), "La auditoría rellena creadoEn sola (@PrePersist)");
+        assertEquals(0, new BigDecimal("400").compareTo(recetaRepository.sumarCalorias(receta.getId())), "400 g x 1 caloría");
+        assertEquals(0, new BigDecimal("4").compareTo(recetaRepository.sumarCoste(receta.getId())), "400 g x 0,01 €");
     }
 
     @Test
@@ -113,14 +118,6 @@ class SmartChefApplicationTests {
         assertEquals(1, pagina.getTotalElements());
     }
 
-    @Test
-    @DisplayName("Alta de ingrediente · existsByNombreIgnoreCase evita duplicados (Q1)")
-    void altaIngrediente_noDuplicados() {
-        crearIngrediente("Azafrán de prueba");
-
-        assertTrue(ingredienteRepository.existsByNombreIgnoreCase("AZAFRÁN DE PRUEBA"));
-        assertFalse(ingredienteRepository.existsByNombreIgnoreCase("No existe este ingrediente"));
-    }
 
     @Test
     @DisplayName("Endpoints 8 y 9 · /despensa · findByUsuarioIdOrderByCaducidadAsc y findByUsuarioIdAndIngredienteId (Q1)")
@@ -180,7 +177,7 @@ class SmartChefApplicationTests {
     }
 
     @Test
-    @DisplayName("Endpoint 15 · GET /registros/semana · consulta nativa con DATE_TRUNC (Q3) y proyección por interfaz (Q5)")
+    @DisplayName("Endpoint 15 · GET /registros/semana · SELECT new ResumenDiaDto (Q5)")
     void endpoint15_semanaConCalorias() {
         Usuario usuario = crearUsuario("Rosa", Rol.USUARIO);
         Usuario chef = crearUsuario("ChefRosa", Rol.CHEF);
@@ -206,16 +203,16 @@ class SmartChefApplicationTests {
         registroComidaRepository.save(RegistroComida.builder()
                 .usuario(usuario).receta(receta).fecha(LocalDate.now().minusDays(7)).momento(Momento.CENA)
                 .build());
-        registroComidaRepository.flush();
 
-        List<CaloriasDiaProyeccion> filas = registroComidaRepository.findCaloriasPorDiaDeLaSemana(usuario.getId(), LocalDate.now());
+        LocalDate lunes = LocalDate.now().with(java.time.DayOfWeek.MONDAY);
+        List<ResumenDiaDto> dias = registroComidaRepository.findCaloriasPorDia(usuario.getId(), lunes, lunes.plusDays(6));
 
         System.out.println("Endpoint 15 -> calorías por día:");
-        filas.forEach(f -> System.out.println("  día " + f.getDia() + ": " + f.getCalorias()));
+        dias.forEach(d -> System.out.println("  " + d.fecha() + ": " + d.calorias()));
 
-        assertEquals(1, filas.size(), "Solo hoy: lo de hace 7 días es de otra semana");
-        assertEquals(LocalDate.now().getDayOfWeek().getValue(), filas.get(0).getDia());
-        assertEquals(0, new BigDecimal("200").compareTo(filas.get(0).getCalorias()), "100 + 100 + 0 (la comida libre no suma)");
+        assertEquals(1, dias.size(), "Solo hoy: lo de hace 7 días es de otra semana");
+        assertEquals(LocalDate.now(), dias.get(0).fecha());
+        assertEquals(0, new BigDecimal("200").compareTo(dias.get(0).calorias()), "100 + 100 + 0 (la comida libre no suma)");
     }
 
     @Test

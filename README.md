@@ -34,7 +34,7 @@ Hay dos formas, y las dos llaman a las **mismas URL**:
 1. **Tests de controlador** (`src/test/java/.../controladores`): un test por cada endpoint y cada caso de error, hechos con `@WebMvcTest` y `MockMvc`. Cada test llama a la URL real (por ejemplo `GET /api/v1/recetas/99`) y comprueba el código HTTP y el JSON de la respuesta. El nombre de cada test dice qué endpoint y qué caso prueba.
 2. **Colección de Postman** (`docs/SmartChef.postman_collection.json`): una carpeta por endpoint con el caso correcto y los de error. Se importa con *Import → File*. Las variables `baseUrl` (`http://localhost:8080/api/v1`), `usuarioId` (5, Julián) y `chefId` (2, María) se cambian en la pestaña *Variables* de la colección.
 
-> Hasta la Fase 4 (seguridad) no hay login, así que los endpoints de un usuario reciben provisionalmente `?usuarioId=`.
+> Esta entrega cubre los endpoints de negocio y sus reglas (Fase 3). La seguridad (registro, login, JWT y roles) es de la Fase 4, y las fotos, notificaciones y tareas programadas de la Fase 5. Mientras no hay login, los endpoints de un usuario reciben provisionalmente `?usuarioId=`.
 
 ## Endpoints
 
@@ -54,10 +54,8 @@ Hay dos formas, y las dos llaman a las **mismas URL**:
 | 12 | GET | `/api/v1/colecciones` | ✅ | `ColeccionService.listar` | `ColeccionControllerTest` (200) |
 | 13 | PUT | `/api/v1/colecciones/{nombre}/recetas/{recetaId}` | ✅ | `ColeccionService.guardarReceta` | `ColeccionControllerTest` (200, 409) |
 | 14 | POST | `/api/v1/registros` | ✅ | `RegistroService.registrar` | `RegistroControllerTest` (201, 400, 409) · `RegistroServiceTest` (409, 422) |
-| 15 | GET | `/api/v1/registros/semana?fecha=` | ⏳ | | |
+| 15 | GET | `/api/v1/registros/semana?fecha=` | ✅ | `RegistroService.semana` | `RegistroControllerTest` (200) · `RegistroServiceTest` (7 días) |
 | 16 | GET | `/api/v1/informes/recetas-populares?desde=&hasta=` | ✅ | `InformeService.recetasPopulares` | `InformeControllerTest` (200, 422) |
-| Extra | GET | `/api/v1/ingredientes/{id}` | ✅ | `IngredienteService.buscarPorId` | `IngredienteControllerTest` (404) |
-| Extra | POST | `/api/v1/ingredientes` | ✅ | `IngredienteService.crear` | `IngredienteControllerTest` (201, 400, 409) |
 
 ✅ hecho · ⏳ pendiente
 
@@ -69,7 +67,7 @@ Hay dos formas, y las dos llaman a las **mismas URL**:
 | `servicios/RecetaServiceTest` | RN-01: pasos sin huecos e ingredientes sin repetir; si falla no se guarda nada | No |
 | `servicios/RegistroServiceTest` | RN-07: un registro por día y momento; comida libre sin descripción; si falla no se guarda nada | No |
 | `SmartChefApplicationTests` | Cada consulta de los repositorios contra PostgreSQL (una por endpoint) | Sí |
-| `MapperTests` | Conversiones de MapStruct | Sí |
+| `MapperTests` | Conversión de entidad a DTO con MapStruct | Sí |
 | `DtoValidationTests` | Validaciones de los DTO de entrada | No |
 
 ## Consultas de los repositorios
@@ -79,12 +77,13 @@ Todas las consultas se usan desde algún servicio.
 | Formato | Consulta | Repositorio | La usa | Test |
 |---|---|---|---|---|
 | Q1 Derivada | `findByNombreContainingIgnoreCase` | `IngredienteRepository` | Endpoint 6 | `endpoint6_catalogoIngredientes` |
-| Q1 Derivada | `existsByNombreIgnoreCase` | `IngredienteRepository` | Alta de ingrediente | `altaIngrediente_noDuplicados` |
 | Q1 Derivada | `findByUsuarioIdOrderByCaducidadAsc` | `DespensaRepository` | Endpoint 8 | `endpoints8y9_despensa` |
 | Q1 Derivada | `findByUsuarioIdAndIngredienteId` | `DespensaRepository` | Endpoint 9 | `endpoints8y9_despensa` |
 | Q1 Derivada | `findByUsuarioId` | `ColeccionRepository` | Endpoint 12 | `endpoints12y13_colecciones` |
 | Q1 Derivada | `findByUsuarioIdAndNombreIgnoreCase` | `ColeccionRepository` | Endpoint 13 | `endpoints12y13_colecciones` |
 | Q1 Derivada | `existsByUsuarioIdAndFechaAndMomento` | `RegistroComidaRepository` | Endpoint 14 | `endpoint14_registroDuplicado` |
+| Q3 Nativa (`DATE_TRUNC`, `EXTRACT`, `COALESCE`) | `findCaloriasPorDiaDeLaSemana` | `RegistroComidaRepository` | Endpoint 15 | `endpoint15_semanaConCalorias` |
+| Q5 Proyección por interfaz | `CaloriasDiaProyeccion` (resultado de la nativa) | `RegistroComidaRepository` | Endpoint 15 | `endpoint15_semanaConCalorias` |
 | Q2 JPQL (JOIN + COUNT + GROUP BY) | `findRecetasMasCocinadas` | `RecetaRepository` | Endpoint 16 | `endpoint16_informeRecetasPopulares` |
 | Q2 JPQL (JOIN + COUNT + GROUP BY) | `findRecetasMasGuardadas` | `ColeccionRepository` | Endpoint 16 | `endpoint16_informeRecetasPopulares` |
 | Q5 Proyección `SELECT new` a DTO | `RecetaPopularDto` en las dos consultas del informe | `RecetaRepository`, `ColeccionRepository` | Endpoint 16 | `endpoint16_informeRecetasPopulares` |
@@ -92,7 +91,7 @@ Todas las consultas se usan desde algún servicio.
 | Q7 Specification | `RecetaSpecifications` (solo recetas activas, RN-09) | `RecetaRepository` | Endpoint 1 | `endpoint1_catalogoConFiltros` |
 | Q8 Evitar N+1 | `findById` con `@EntityGraph` | `RecetaRepository` | Endpoint 2 | `endpoint2_detalleReceta` |
 
-Pendientes: Q3 (2 consultas nativas), Q4 (`@Modifying`) y la proyección por interfaz de Q5. Irán con los endpoints 7, 15 y la tarea programada; el resumen semanal (endpoint 15) devolverá un DTO.
+Pendientes: la segunda consulta nativa (Q3, irá con el endpoint 7) y Q4 (`@Modifying`, irá con la tarea programada).
 
 ## Decisiones de diseño
 

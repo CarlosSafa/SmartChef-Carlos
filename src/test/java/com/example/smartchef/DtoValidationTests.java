@@ -1,13 +1,9 @@
 package com.example.smartchef;
 
-import com.example.smartchef.dtos.request.IngredienteRequestDto;
 import com.example.smartchef.dtos.request.RecetaCreacionDto;
-import com.example.smartchef.dtos.request.RegistroRequestDto;
 import com.example.smartchef.dtos.request.RegistroComidaRequestDto;
-import com.example.smartchef.modelos.Categoria;
 import com.example.smartchef.modelos.Dificultad;
 import com.example.smartchef.modelos.Momento;
-import com.example.smartchef.modelos.UnidadMedida;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -33,38 +29,8 @@ class DtoValidationTests {
         validator = factory.getValidator();
     }
 
-    @Test
-    @DisplayName("RegistroRequestDto válido no genera violaciones")
-    void testRegistroRequestDto_Valido() {
-        RegistroRequestDto dto = new RegistroRequestDto("Carlos Gómez", "carlos@example.com", "password123");
-        Set<ConstraintViolation<RegistroRequestDto>> violations = validator.validate(dto);
-        assertTrue(violations.isEmpty(), "Un DTO correcto no debe dar fallos de validación");
-    }
 
-    @Test
-    @DisplayName("RegistroRequestDto con email inválido y campos vacíos debe fallar")
-    void testRegistroRequestDto_Invalido() {
-        RegistroRequestDto dto = new RegistroRequestDto("", "email-invalido", "123");
-        Set<ConstraintViolation<RegistroRequestDto>> violations = validator.validate(dto);
 
-        assertFalse(violations.isEmpty(), "Debe detectar errores de validación");
-        assertTrue(violations.size() >= 3, "Debe fallar nombre vacío, email incorrecto y contraseña corta");
-    }
-
-    @Test
-    @DisplayName("IngredienteRequestDto con valores negativos debe fallar")
-    void testIngredienteRequestDto_PrecioNegativo() {
-        IngredienteRequestDto dto = new IngredienteRequestDto(
-                "Patata",
-                UnidadMedida.GRAMOS,
-                Categoria.VERDULERIA,
-                new BigDecimal("-10.00"), // Calorías negativas
-                new BigDecimal("-0.50")   // Precio negativo
-        );
-
-        Set<ConstraintViolation<IngredienteRequestDto>> violations = validator.validate(dto);
-        assertFalse(violations.isEmpty(), "No debe permitir calorías o precios negativos");
-    }
 
     @Test
     @DisplayName("RecetaCreacionDto sin ingredientes o sin pasos debe fallar")
