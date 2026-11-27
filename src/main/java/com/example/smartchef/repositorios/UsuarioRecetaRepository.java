@@ -10,6 +10,9 @@ import java.util.List;
 
 public interface UsuarioRecetaRepository extends JpaRepository<UsuarioReceta, Integer> {
 
+    // 14. RN-07: ¿ya hay un registro de este usuario en este momento del día (1, 2 o 3) ese día?
+    boolean existsByUsuarioIdAndTipoAndFechaBetween(Integer usuarioId, Integer tipo, LocalDateTime desde, LocalDateTime hasta);
+
     // 15. GET /api/v1/registros/semana?fecha=: Semana por días con calorías totales
     @Query("SELECT ur FROM UsuarioReceta ur WHERE ur.usuario.id = :idUsuario " +
             "AND ur.fecha >= :inicioSemana AND ur.fecha <= :finSemana")

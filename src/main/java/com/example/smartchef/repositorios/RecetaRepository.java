@@ -1,10 +1,10 @@
 package com.example.smartchef.repositorios;
 
+import com.example.smartchef.dtos.response.RecetaPopularDto;
 import com.example.smartchef.modelos.Receta;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -12,33 +12,19 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public interface RecetaRepository extends JpaRepository<Receta, Integer> {
+// JpaSpecificationExecutor permite buscar con filtros opcionales combinables (Q7, endpoint 1)
+public interface RecetaRepository extends JpaRepository<Receta, Integer>, JpaSpecificationExecutor<Receta> {
 
-    // 1. GET /api/v1/recetas: Catálogo paginado con filtros (RF02)
-    @Query("SELECT r FROM Receta r WHERE " +
-            "(:nombre IS NULL OR LOWER(r.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) AND " +
-            "(:dificultad IS NULL OR r.dificultad = :dificultad) AND " +
-            "(:tiempoMax IS NULL OR r.tiempo <= :tiempoMax)")
-    Page<Receta> findConFiltros(@Param("nombre") String nombre,
-                                @Param("dificultad") Integer dificultad,
-                                @Param("tiempoMax") Integer tiempoMax,
-                                Pageable pageable);
-
-    // 2. GET /api/v1/recetas/{id}: Detalle de la receta cargando sus ingredientes de una vez (Q8, evita N+1)
-    // Solo se carga una lista: si se cargan varias List a la vez Hibernate da MultipleBagFetchException
+    // 2. GET /api/v1/recetas/{id}: carga la receta con sus ingredientes de una vez (Q8, evita N+1)
     @EntityGraph(attributePaths = {"ingredientes", "ingredientes.ingrediente"})
     Optional<Receta> findById(Integer id);
 
-    // 16. GET /api/v1/informes/recetas-populares: Recetas más cocinadas/guardadas
-    @Query("SELECT ur.receta, COUNT(ur) AS total " +
-            "FROM UsuarioReceta ur " +
-            "WHERE (:desde IS NULL OR ur.fecha >= :desde) " +
-            "  AND (:hasta IS NULL OR ur.fecha <= :hasta) " +
-            "  AND (:tipo IS NULL OR ur.tipo = :tipo) " +
-            "GROUP BY ur.receta " +
-            "ORDER BY total DESC")
-    List<Object[]> findRecetasPopulares(@Param("desde") LocalDateTime desde,
-                                        @Param("hasta") LocalDateTime hasta,
-                                        @Param("tipo") Integer tipo,
-                                        Pageable pageable);
+    // 16. Informe: recetas más cocinadas entre dos fechas (Q2 JOIN + COUNT + GROUP BY, Q5 SELECT new DTO)
+    @Query("SELECT new com.example.smartchef.dtos.response.RecetaPopularDto(r.id, r.nombre, COUNT(ur)) " +
+            "FROM UsuarioReceta ur JOIN ur.receta r " +
+            "WHERE ur.fecha BETWEEN :desde AND :hasta " +
+            "GROUP BY r.id, r.nombre " +
+            "ORDER BY COUNT(ur) DESC")
+    List<RecetaPopularDto> findRecetasMasCocinadas(@Param("desde") LocalDateTime desde,
+                                                   @Param("hasta") LocalDateTime hasta);
 }

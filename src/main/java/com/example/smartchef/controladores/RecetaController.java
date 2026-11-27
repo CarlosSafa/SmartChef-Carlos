@@ -5,6 +5,9 @@ import com.example.smartchef.dtos.response.RecetaDetalleResponseDto;
 import com.example.smartchef.servicios.RecetaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -17,6 +20,15 @@ import java.net.URI;
 public class RecetaController {
 
     private final RecetaService recetaService;
+
+    // 1. GET /api/v1/recetas?nombre=tort&dificultad=1&tiempoMax=30&page=0&size=10  (público)
+    @GetMapping
+    public Page<RecetaDetalleResponseDto> listar(@RequestParam(required = false) String nombre,
+                                                 @RequestParam(required = false) Integer dificultad,
+                                                 @RequestParam(required = false) Integer tiempoMax,
+                                                 @PageableDefault(size = 10) Pageable pageable) {
+        return recetaService.listar(nombre, dificultad, tiempoMax, pageable);
+    }
 
     // 2. GET /api/v1/recetas/3  (público)
     @GetMapping("/{id}")

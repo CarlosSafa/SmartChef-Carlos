@@ -15,9 +15,13 @@ import com.example.smartchef.modelos.RecetaIngrediente;
 import com.example.smartchef.modelos.RecetaIngredienteId;
 import com.example.smartchef.repositorios.IngredienteRepository;
 import com.example.smartchef.repositorios.RecetaRepository;
+import com.example.smartchef.repositorios.RecetaSpecifications;
 import com.example.smartchef.servicios.RecetaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +40,24 @@ public class RecetaServiceImpl implements RecetaService {
     private final IngredienteRepository ingredienteRepository;
     private final RecetaMapper recetaMapper;
     private final RecetaIngredienteMapper recetaIngredienteMapper;
+
+    @Override
+    public Page<RecetaDetalleResponseDto> listar(String nombre, Integer dificultad, Integer tiempoMax, Pageable pageable) {
+        // Q7: se empieza con "todas" y se añade cada filtro solo si viene en la petición
+        Specification<Receta> filtro = RecetaSpecifications.todas();
+        if (nombre != null && !nombre.isBlank()) {
+            filtro = filtro.and(RecetaSpecifications.nombreContiene(nombre));
+        }
+        if (dificultad != null) {
+            filtro = filtro.and(RecetaSpecifications.dificultadIgual(dificultad));
+        }
+        if (tiempoMax != null) {
+            filtro = filtro.and(RecetaSpecifications.tiempoMaximo(tiempoMax));
+        }
+
+        Page<Receta> pagina = recetaRepository.findAll(filtro, pageable);
+        return pagina.map(recetaMapper::aDetalleDto);
+    }
 
     @Override
     public RecetaDetalleResponseDto buscarPorId(Integer id) {
